@@ -116,10 +116,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Attach.h" />
+    <ClInclude Include="FFT_ALG.h" />
     <ClInclude Include="Templates.h" />
     <ClInclude Include="Useful.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="FFT_ALG.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Useful.cpp" />
   </ItemGroup>

@@ -33,6 +33,22 @@ namespace template_funcs{
 		return ((b)>(T)(0)?fabs(a):-fabs(a));
 	}
 
+	template <class T> void SWAP(T &a, T &b)
+	{
+		// Updated version of SWAP Macro
+
+		T itemp = (a);
+		(a) = (b);
+		(b) = itemp;
+	}
+
+	template <class T> void SHFT(T &a, T &b, T &c, T &d)
+	{
+		// Updated version of SHFT Macro
+
+		(a) = (b); (b) = (c); (c) = (d);
+	}
+
 	template <class T> std::string toString(const T & t)
 	{
 		// This is just too convenient not to use

@@ -105,11 +105,53 @@ void useful_funcs::read_into_vector(std::string &filename, std::vector<double> &
 			reason = "Error: void read_into_vector(std::string &filename, std::vector<double> &data)\n"; 
 			reason += "Cannot open: " + filename + "\n"; 
 			throw std::invalid_argument(reason); 
-		}
-		
+		}		
 	}
 	catch(std::invalid_argument &e){
 		useful_funcs::exit_failure_output(e.what());
 		exit(EXIT_FAILURE); 
 	}
+}
+
+unsigned long useful_funcs::next_POT(double x)
+{
+	// This function converts a number x to the next highest power of two
+	// R. Sheehan 18 - 2 - 2008
+
+	try {
+		if (x > 1) {
+			int fl;
+			double lxb2;
+			unsigned long res;
+
+			lxb2 = log(x) / log(2.0); // Calculate the log of x to base 2
+
+			fl = static_cast<int>(std::ceil(lxb2)); // use ceiling instead of round because you want next highest power of two
+			//fl=(int)(Round(lxb2)); // this will convert x to the nearest power of two, which might be lower than you want
+
+			res = static_cast<int>(std::pow(2, fl));
+
+			return res;
+		}
+		else {
+			std::string reason;
+			reason = "Error: useful_funcs::next_POT(double x)\n";
+			reason += "x<=1: " + template_funcs::toString(x, 1) + "\n";
+			throw std::invalid_argument(reason);
+
+			return -1; 
+		}
+	}
+	catch (std::invalid_argument &e) {
+		useful_funcs::exit_failure_output(e.what());
+		exit(EXIT_FAILURE);
+	}
+}
+
+bool useful_funcs::is_POT(int x)
+{
+	// Test a number to see if it is a power of two
+	// R. Sheehan 18 - 2 - 2008
+
+	return (x > 0 && !(x & (x - 1)));
 }

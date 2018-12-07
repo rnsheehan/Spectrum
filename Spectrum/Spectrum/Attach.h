@@ -40,5 +40,6 @@ static const double PI_6 = ((2.0 / 3.0)*p); // pi / 6
 
 #include "Templates.h"
 #include "Useful.h"
+#include "FFT_ALG.h"
 
 #endif
