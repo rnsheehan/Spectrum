@@ -76,41 +76,30 @@ void useful_funcs::exit_failure_output(std::string reason)
 	}
 }
 
-void useful_funcs::read_into_vector(std::string &filename, std::vector<double> &data, int &n_pts, bool loud)
+void useful_funcs::remove_substring(std::string &the_string, std::string the_sub_string)
 {
-	// read data from a file into a vector
-	// R. Sheehan 11 - 9 - 2017
+	// remove the_sub_string from the_string
 
-	try{
-		std::ifstream the_file; 
-		the_file.open(filename, std::ios_base::in);
+	/*std::string::size_type i = filename.find(dottxt);
+	if (i != std::string::npos)
+	filename.erase(i, dottxt.length());*/
 
-		if(the_file.is_open()){
+	// find the position in the_string at which the_sub_string starts
+	std::string::size_type i = the_string.find(the_sub_string);
 
-			if(loud) std::cout<<filename<<" opened for reading\n"; 
-
-			double value; 
-			n_pts = 0;
-			while(the_file >> value){
-				data.push_back(value);
-				n_pts++; 
-			}
-
-			if(loud) std::cout<<template_funcs::toString(n_pts)<<" data were read from "<<filename<<"\n"; 
-
-			the_file.close(); 		
-		}
-		else{
-			std::string reason; 
-			reason = "Error: void read_into_vector(std::string &filename, std::vector<double> &data)\n"; 
-			reason += "Cannot open: " + filename + "\n"; 
-			throw std::invalid_argument(reason); 
-		}		
+	if (i != std::string::npos) {
+		// npos is a static member constant value with the greatest possible value for an element of type size_t
+		// As a return value, it is usually used to indicate no matches.
+		the_string.erase(i, the_sub_string.length());
 	}
-	catch(std::invalid_argument &e){
-		useful_funcs::exit_failure_output(e.what());
-		exit(EXIT_FAILURE); 
-	}
+}
+
+bool useful_funcs::valid_filename_length(const std::string &name)
+{
+	// Check that a string length is less than the MAX_PATH_LENGTH
+	// This only really applies to windows
+
+	return static_cast<int>(name.length()) < MAX_PATH_LENGTH ? true : false;
 }
 
 unsigned long useful_funcs::next_POT(double x)

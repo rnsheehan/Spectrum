@@ -33,6 +33,21 @@ namespace template_funcs{
 		return ((b)>(T)(0)?fabs(a):-fabs(a));
 	}
 
+	template <class T> T Pythag(T a, T b)
+	{
+		// Computes (a^2+b^2)^{1/2} without over / underflow
+
+		T absa, absb;
+		absa = abs(a);
+		absb = abs(b);
+		if (absa>absb) {
+			return absa * sqrt((T)(1) + DSQR(absb / absa));
+		}
+		else {
+			return (absb == (T)(0) ? (T)(0) : absb * sqrt((T)(1) + DSQR(absa / absb)));
+		}
+	}
+
 	template <class T> void SWAP(T &a, T &b)
 	{
 		// Updated version of SWAP Macro

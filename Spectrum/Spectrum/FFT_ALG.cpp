@@ -26,44 +26,138 @@ void fft::_four1(std::vector<double> &data, unsigned long &nn, int isign, bool F
 	// padding of data can be applied after the fact
 
 	try {
-		if (useful_funcs::is_POT(nn) && abs(isign) == 1) {
+		
+		if ( !data.empty() ) {
 
-			// nn must be a power of two
-			// data must be in the form (real, imag, real, imag, real, imag, ....), with all imag = 0, hence length 2*nn
-			// isign = 1 for FT
-
-			if (FORMAT_DATA) {
-				format_four1(data);
-			}
+			if (FORMAT_DATA) format_four1(data);
 
 			pad_data(data, nn, true); // data input into four1 must be in cmplx format
 
-			four1(data, nn, isign);
+			if (useful_funcs::is_POT(nn) && abs(isign) == 1) {
 
-			// scale by 1/N in the case of an inverse FT
-			// Not yet clear what effect this has on other algorithms
-			/*if(isign == IFT){
-			for(int i=1; i<=data.n_elems(); i++){
-			data[i] /= nn;
+				// nn must be a power of two
+				// data must be in the form (real, imag, real, imag, real, imag, ....), with all imag = 0, hence length 2*nn
+				// isign = 1 for FT
+				four1(data, nn, isign);
+
+				// scale by 1/N in the case of an inverse FT
+				// Not yet clear what effect this has on other algorithms
+				/*if(isign == IFT){
+				for(int i=1; i<=data.n_elems(); i++){
+				data[i] /= nn;
+				}
+				}*/
 			}
-			}*/
-
+			else {
+				std::string reason;
+				reason = "Error: void fft::pad_data(std::vector<double> &data, unsigned long &nn, bool CMPLX_ARR)\n";
+				reason = "Input arrays do not have the correct dimension in fft::_four1\n";
+				reason = reason + "nn = " + template_funcs::toString(nn) + "\n";
+				reason = reason + "2*nn = " + template_funcs::toString(2 * nn) + "\n";
+				if (useful_funcs::is_POT(nn)) {
+					reason = reason + "nn is a power of 2\n";
+				}
+				else {
+					reason = reason + "nn is not a power of 2\n";
+				}
+				reason = reason + "data.n_elems() = " + template_funcs::toString(data.size()) + "\n";
+				reason = reason + "isign = " + template_funcs::toString(isign) + "\n";
+				throw std::invalid_argument(reason);
+			}
 		}
 		else {
 			std::string reason;
 			reason = "Error: void fft::pad_data(std::vector<double> &data, unsigned long &nn, bool CMPLX_ARR)\n";
-			reason = "Input arrays do not have the correct dimension in fft::_four1\n";
-			reason = reason + "nn = " + template_funcs::toString(nn) + "\n";
-			reason = reason + "2*nn = " + template_funcs::toString(2 * nn) + "\n";
-			if (useful_funcs::is_POT(nn)) {
-				reason = reason + "nn is a power of 2\n";
+			reason += "Input array is empty\n"; 
+			throw std::invalid_argument(reason);
+		}
+	}
+	catch (std::invalid_argument &e) {
+		useful_funcs::exit_failure_output(e.what());
+		exit(EXIT_FAILURE);
+	}
+}
+
+void fft::output_data(std::vector<double> data, double pos_spac, std::string &filename, bool wrap_around)
+{
+	// output the computed FFT data to a file
+	// How do you handle the position data if the size of the data has been expanded? 
+	// Don't need it because you are working in frequency space. This means that you should output frequency data
+	// for the human readable format. 
+
+	// Need two options for output
+	// Standard option is to output directly from the FFT algorithm, this outputs in wrap-around order
+	// Also want an option to output data in a human readable / plottable format
+
+	// this assumes that FFT of data has been computed
+
+	try {
+		if (pos_spac > 0.0 && !data.empty() && filename != empty_str && useful_funcs::valid_filename_length(filename)) {
+		
+			// remove .txt from end of filename
+			useful_funcs::remove_substring(filename, dottxt);
+
+			if (wrap_around) {
+				// output data in standard wrap-around order
+				// never really want to use this order for output for humans
+				std::string type = "wrap_around";
+
+				filename += type;
+				filename += dottxt;
+
+				vecut::write_into_file(filename, data); 
 			}
 			else {
-				reason = reason + "nn is not a power of 2\n";
+				// output data in human readable format, along with frequency data
+
+				// output the positive frequency components of the data set
+				// set up the frequency space for the positive half of the FFT
+
+				int N_fr = data.size() / 4; // this may have been re-sized, so use this value instead of the one that was input
+											// divide by 4 because array is of length 2*N
+				std::vector<double> fr_vals(N_fr, 0.0);
+
+				double delta_fr, fr0 = 0.0, fr_final = 1.0 / (2.0*pos_spac);
+
+				delta_fr = (fr_final - fr0) / (static_cast<double>(N_fr - 1));
+
+				std::cout << "Frequency Space\n";
+				std::cout << "N = " << N_fr << ", delta-T = " << pos_spac << ", 1/2T = " << fr_final << "\n";
+				std::cout << "f0 = " << fr0 << " , ff = " << fr_final << " , df = " << delta_fr << "\n";
+
+				for (int i = 0; i < N_fr; i++) {
+					fr_vals[i] = fr0;
+					fr0 += delta_fr;
+				}				
+
+				std::string fr_file = filename + "_Frq_data" + dottxt; // filename for frequency data
+
+				vecut::write_into_file(fr_file, fr_vals);
+
+				// output the positive frequency components of the computed FFT
+
+				std::string fft_file = filename + "_Abs_FFT_data" + dottxt; // filename for absolute value of FFT data
+
+				std::ofstream write(fft_file, std::ios_base::out, std::ios_base::trunc);
+
+				if (write.is_open()) {
+
+					for (size_t i = 0; i < data.size() / 2; i += 2) {
+						write << std::setprecision(10) << template_funcs::Pythag(data[i], data[i+1]) << "\n";
+					}
+
+					write.close();
+				}
+
+				fr_vals.clear();
 			}
-			reason = reason + "data.n_elems() = " + template_funcs::toString(data.size()) + "\n";
-			reason = reason + "isign = " + template_funcs::toString(isign) + "\n";
-			throw std::invalid_argument(reason);
+		}
+		else {
+			std::string reason; 
+			reason = "Error: void fft::output_data(std::vector<double> data, double pos_spac, std::string &filename, bool wrap_around)\n";
+			if (data.empty()) reason += "data is empty\n"; 
+			if (filename == empty_str || !useful_funcs::valid_filename_length(filename)) reason += "Filename: " + filename + " is not valid\n"; 
+			throw std::invalid_argument(reason); 
 		}
 	}
 	catch (std::invalid_argument &e) {

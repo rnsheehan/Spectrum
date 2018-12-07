@@ -11,7 +11,7 @@
 
 int main() 
 {
-	std::cout << "Hello World\n"; 
+	testing::sample_FFT_calculation(); 
 
 	std::cout << "Press enter to close\n"; 
 	std::cin.get(); 

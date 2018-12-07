@@ -8,7 +8,9 @@ class fft {
 public:
 	fft();
 
-	void _four1(std::vector<double> &data, unsigned long &nn, int isign, bool FORMAT_DATA = true);
+	void _four1(std::vector<double> &data, unsigned long &nn, int isign = 1, bool FORMAT_DATA = true);
+
+	void output_data(std::vector<double> data, double pos_spac, std::string &filename, bool wrap_around = false);
 
 private:
 	void four1(std::vector<double> &data, unsigned long nn, int isign);

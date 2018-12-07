@@ -10,7 +10,9 @@ namespace useful_funcs{
 
 	void exit_failure_output(std::string reason);
 
-	void read_into_vector(std::string &filename, std::vector<double> &data, int &n_pts, bool loud = false); 
+	void remove_substring(std::string &the_string, std::string the_sub_string); 
+
+	bool valid_filename_length(const std::string &name); 
 
 	unsigned long next_POT(double x); // This function converts a number x to the next highest power of two 
 

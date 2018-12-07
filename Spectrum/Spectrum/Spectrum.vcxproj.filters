@@ -27,6 +27,12 @@
     <ClInclude Include="FFT_ALG.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Vector_Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Testing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Useful.cpp">
@@ -36,6 +42,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FFT_ALG.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector_Utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Testing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

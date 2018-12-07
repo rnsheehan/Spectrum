@@ -28,7 +28,6 @@
 
 // Constants
 static const double EPS = (3.0e-12);
-
 static const double p = (atan(1.0)); // pi / 4
 static const double Two_PI = (8.0*p); // 2 pi
 static const double PI = (4.0*p); // pi
@@ -38,8 +37,15 @@ static const double PI_4 = (p); // pi / 4
 static const double PI_5 = ((4.0 / 5.0)*p); // pi / 5
 static const double PI_6 = ((2.0 / 3.0)*p); // pi / 6 
 
+static const int MAX_PATH_LENGTH = 250; // max. length for a directory in Windows OS
+
+static const std::string empty_str = "";
+static const std::string dottxt = ".txt";
+
 #include "Templates.h"
 #include "Useful.h"
+#include "Vector_Utils.h"
 #include "FFT_ALG.h"
+#include "Testing.h"
 
 #endif
