@@ -22,7 +22,7 @@ void fft::_four1(std::vector<double> &data, unsigned long &nn, int isign, bool F
 	// data is a complex array of length nn, or equivalently, a real array of length 2*nn
 	// nn MUST be an integer power of 2
 
-	// data must be in the form output by format_four1 algorithm can be applied
+	// data must be in the form output by format_four1 before fft algorithm can be applied
 	// padding of data can be applied after the fact
 
 	try {
@@ -121,9 +121,9 @@ void fft::output_data(std::vector<double> data, double pos_spac, std::string &fi
 
 				delta_fr = (fr_final - fr0) / (static_cast<double>(N_fr - 1));
 
-				std::cout << "Frequency Space\n";
+				std::cout << "\nFrequency Space\n";
 				std::cout << "N = " << N_fr << ", delta-T = " << pos_spac << ", 1/2T = " << fr_final << "\n";
-				std::cout << "f0 = " << fr0 << " , ff = " << fr_final << " , df = " << delta_fr << "\n";
+				std::cout << "f0 = " << fr0 << " , ff = " << fr_final << " , df = " << delta_fr << "\n\n";
 
 				for (int i = 0; i < N_fr; i++) {
 					fr_vals[i] = fr0;

@@ -22,7 +22,7 @@ void testing::sample_FFT_calculation()
 
 	fft calc; 
 
-	calc._four1(spctdata, nn);
+	calc._four1(spctdata, nn); // compute the FFT of spctdata
 
 	calc.output_data(spctdata, delta_t, spctfile); 
 }
