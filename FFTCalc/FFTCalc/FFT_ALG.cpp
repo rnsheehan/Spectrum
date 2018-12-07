@@ -113,7 +113,7 @@ void fft::output_data(std::vector<double> data, double pos_spac, std::string &fi
 				// output the positive frequency components of the data set
 				// set up the frequency space for the positive half of the FFT
 
-				int N_fr = data.size() / 4; // this may have been re-sized, so use this value instead of the one that was input
+				int N_fr = static_cast<int>(data.size()) / 4; // this may have been re-sized, so use this value instead of the one that was input
 											// divide by 4 because array is of length 2*N
 				std::vector<double> fr_vals(N_fr, 0.0);
 
@@ -121,9 +121,9 @@ void fft::output_data(std::vector<double> data, double pos_spac, std::string &fi
 
 				delta_fr = (fr_final - fr0) / (static_cast<double>(N_fr - 1));
 
-				std::cout << "\nFrequency Space\n";
+				/*std::cout << "\nFrequency Space\n";
 				std::cout << "N = " << N_fr << ", delta-T = " << pos_spac << ", 1/2T = " << fr_final << "\n";
-				std::cout << "f0 = " << fr0 << " , ff = " << fr_final << " , df = " << delta_fr << "\n\n";
+				std::cout << "f0 = " << fr0 << " , ff = " << fr_final << " , df = " << delta_fr << "\n";*/
 
 				for (int i = 0; i < N_fr; i++) {
 					fr_vals[i] = fr0;

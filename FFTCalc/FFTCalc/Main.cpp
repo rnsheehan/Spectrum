@@ -9,6 +9,10 @@
 // One of the tasks required is to determine the SNR of the FFT from the trace data
 // R. Sheehan 5 - 12 - 2018
 
+// This version of the code uses the developed FFT code and will run from the command line
+// It is this version of the code that will run from inside LabVIEW
+// R. Sheehan 7 - 12 - 2018
+
 int main(int argc, char *argv[])
 {
 	// run program from command line
@@ -34,22 +38,43 @@ int main(int argc, char *argv[])
 			// filename1 = argv[1]
 			// filename2 = argv[2]
 
-			std::string filename1 = argv[1];
-			std::string filename2 = argv[2];
+			std::string timefile = argv[1];
+			std::string spctfile = argv[2];
 
-			if (useful_funcs::file_exists(filename1) && useful_funcs::file_exists(filename2)) {
-				int size1 = 0, size2 = 0;
-				std::vector<double> data1, data2;
-				vecut::read_into_vector(filename1, data1, size1, true);
-				vecut::read_into_vector(filename2, data2, size2, true);
+			if (useful_funcs::file_exists(timefile) && useful_funcs::file_exists(spctfile)) {
+
+				std::vector<double> timedata; int ntimes = 0;
+				
+				std::vector<double> spctdata; int nspct = 0;
+
+				vecut::read_into_vector(timefile, timedata, ntimes, true);
+
+				vecut::read_into_vector(spctfile, spctdata, nspct, true);
+
+				double delta_t = timedata[1] - timedata[0];
+
+				unsigned long nn = nspct;
+
+				fft calc; // this is the FFT calculation object
+
+				clock_t start = clock(); 
+
+				calc._four1(spctdata, nn); // compute the FFT of spctdata
+
+				clock_t finish = clock(); 
+
+				calc.output_data(spctdata, delta_t, spctfile); // output the absolute value of the FFT as well as the frequency space data
+
+				std::cout << "FFT Calculation Complete\n"; 
+				std::cout << "Time taken: " << static_cast<double>((finish - start) / CLOCKS_PER_SEC) << " seconds\n";
 			}
 			else {
 				std::string reason;
 				std::string prog_name = argv[0];
 				reason = "Error: " + prog_name + ".exe\n";
 				reason += "One or both of the files does not exist\n";
-				if (!useful_funcs::file_exists(filename1)) reason += "File: " + filename1 + " does not exist\n";
-				if (!useful_funcs::file_exists(filename2)) reason += "File: " + filename2 + " does not exist\n";
+				if (!useful_funcs::file_exists(timefile)) reason += "File: " + timefile + " does not exist\n";
+				if (!useful_funcs::file_exists(spctfile)) reason += "File: " + spctfile + " does not exist\n";
 				throw std::invalid_argument(reason);
 			}
 		}
