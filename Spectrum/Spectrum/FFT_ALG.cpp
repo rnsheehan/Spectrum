@@ -119,11 +119,15 @@ void fft::output_data(std::vector<double> data, double pos_spac, std::string &fi
 
 				double delta_fr, fr0 = 0.0, fr_final = 1.0 / (2.0*pos_spac);
 
+				//fr_final = 1.0 / (N_fr*pos_spac); 
+
 				delta_fr = (fr_final - fr0) / (static_cast<double>(N_fr - 1));
 
 				std::cout << "\nFrequency Space\n";
 				std::cout << "N = " << N_fr << ", delta-T = " << pos_spac << ", 1/2T = " << fr_final << "\n";
 				std::cout << "f0 = " << fr0 << " , ff = " << fr_final << " , df = " << delta_fr << "\n\n";
+
+				//double scale = (template_funcs::DSQR(1552) / (2.0 * 3.45))/1000.0; 
 
 				for (int i = 0; i < N_fr; i++) {
 					fr_vals[i] = fr0;
@@ -157,6 +161,7 @@ void fft::output_data(std::vector<double> data, double pos_spac, std::string &fi
 			reason = "Error: void fft::output_data(std::vector<double> data, double pos_spac, std::string &filename, bool wrap_around)\n";
 			if (data.empty()) reason += "data is empty\n"; 
 			if (filename == empty_str || !useful_funcs::valid_filename_length(filename)) reason += "Filename: " + filename + " is not valid\n"; 
+			if (!(pos_spac > 0.0)) reason += "position spacing is not positive\n"; 
 			throw std::invalid_argument(reason); 
 		}
 	}

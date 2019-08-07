@@ -5,6 +5,8 @@
 
 namespace testing {
 	void sample_FFT_calculation(); 
+
+	void laser_cavity_length(); 
 }
 
 #endif

@@ -11,7 +11,9 @@
 
 int main() 
 {
-	testing::sample_FFT_calculation(); 
+	//testing::sample_FFT_calculation(); 
+
+	testing::laser_cavity_length(); 
 
 	std::cout << "Press enter to close\n"; 
 	std::cin.get(); 
