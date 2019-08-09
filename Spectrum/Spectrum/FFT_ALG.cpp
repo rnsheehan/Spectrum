@@ -78,7 +78,7 @@ void fft::_four1(std::vector<double> &data, unsigned long &nn, int isign, bool F
 	}
 }
 
-void fft::output_data(std::vector<double> data, double pos_spac, std::string &filename, bool wrap_around)
+void fft::output_data(std::vector<double> data, double pos_spac, std::string &filename, std::string extension, bool wrap_around)
 {
 	// output the computed FFT data to a file
 	// How do you handle the position data if the size of the data has been expanded? 
@@ -95,7 +95,7 @@ void fft::output_data(std::vector<double> data, double pos_spac, std::string &fi
 		if (pos_spac > 0.0 && !data.empty() && filename != empty_str && useful_funcs::valid_filename_length(filename)) {
 		
 			// remove .txt from end of filename
-			useful_funcs::remove_substring(filename, dottxt);
+			useful_funcs::remove_substring(filename, extension);
 
 			if (wrap_around) {
 				// output data in standard wrap-around order
@@ -103,7 +103,7 @@ void fft::output_data(std::vector<double> data, double pos_spac, std::string &fi
 				std::string type = "wrap_around";
 
 				filename += type;
-				filename += dottxt;
+				filename += extension;
 
 				vecut::write_into_file(filename, data); 
 			}
@@ -115,32 +115,18 @@ void fft::output_data(std::vector<double> data, double pos_spac, std::string &fi
 
 				int N_fr = data.size() / 4; // this may have been re-sized, so use this value instead of the one that was input
 											// divide by 4 because array is of length 2*N
-				std::vector<double> fr_vals(N_fr, 0.0);
+				std::vector<double> fr_vals(N_fr, 0.0);			
 
-				double delta_fr, fr0 = 0.0, fr_final = 1.0 / (2.0*pos_spac);
+				create_freq_values(N_fr, pos_spac, fr_vals); // compute the frequency space values
 
-				//fr_final = 1.0 / (N_fr*pos_spac); 
-
-				delta_fr = (fr_final - fr0) / (static_cast<double>(N_fr - 1));
-
-				std::cout << "\nFrequency Space\n";
-				std::cout << "N = " << N_fr << ", delta-T = " << pos_spac << ", 1/2T = " << fr_final << "\n";
-				std::cout << "f0 = " << fr0 << " , ff = " << fr_final << " , df = " << delta_fr << "\n\n";
-
-				//double scale = (template_funcs::DSQR(1552) / (2.0 * 3.45))/1000.0; 
-
-				for (int i = 0; i < N_fr; i++) {
-					fr_vals[i] = fr0;
-					fr0 += delta_fr;
-				}				
-
-				std::string fr_file = filename + "_Frq_data" + dottxt; // filename for frequency data
+				// filename for frequency data
+				std::string fr_file = filename + "_Frq_data" + extension;
 
 				vecut::write_into_file(fr_file, fr_vals);
 
 				// output the positive frequency components of the computed FFT
 
-				std::string fft_file = filename + "_Abs_FFT_data" + dottxt; // filename for absolute value of FFT data
+				std::string fft_file = filename + "_Abs_FFT_data" + extension; // filename for absolute value of FFT data
 
 				std::ofstream write(fft_file, std::ios_base::out, std::ios_base::trunc);
 
@@ -311,5 +297,41 @@ void fft::four1(std::vector<double> &data, unsigned long nn, int isign)
 			wi = wi * wpr + wtemp * wpi + wi;
 		}
 		mmax = istep;
+	}
+}
+
+void fft::create_freq_values(int &N_fr, double &pos_spac, std::vector<double> &fr_vals, bool loud)
+{
+	// Create the set of frequency values that correspond to a straightforward FFT calculation
+	// R. Sheehan 8 - 8 - 2019
+
+	try {
+		if (pos_spac > 0.0 && static_cast<int>(fr_vals.size()) == N_fr) {
+			
+			double delta_fr, fr0 = 0.0, fr_final = 1.0 / (2.0*pos_spac);
+
+			delta_fr = (fr_final - fr0) / (static_cast<double>(N_fr - 1));
+
+			if(loud){
+				std::cout << "\nFrequency Space\n";
+				std::cout << "N = " << N_fr << ", delta-T = " << pos_spac << ", 1/2T = " << fr_final << "\n";
+				std::cout << "f0 = " << fr0 << " , ff = " << fr_final << " , df = " << delta_fr << "\n\n";
+			}			
+
+			for (int i = 0; i < N_fr; i++) {
+				fr_vals[i] = fr0;
+				fr0 += delta_fr;
+			}
+		}
+		else {
+			std::string reason;
+			reason = "Error: void fft::create_freq_values(int &N_fr, double &pos_spac, std::vector<double> &fr_vals, bool loud)\n";
+			reason += "pos_spac or vector input size not valid\n";
+			throw std::invalid_argument(reason);
+		}
+	}
+	catch (std::invalid_argument &e) {
+		useful_funcs::exit_failure_output(e.what());
+		exit(EXIT_FAILURE);
 	}
 }

@@ -41,6 +41,7 @@ static const int MAX_PATH_LENGTH = 250; // max. length for a directory in Window
 
 static const std::string empty_str = "";
 static const std::string dottxt = ".txt";
+static const std::string dotcsv= ".csv";
 
 #include "Templates.h"
 #include "Useful.h"

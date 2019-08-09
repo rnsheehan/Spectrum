@@ -12,6 +12,12 @@ namespace useful_funcs{
 
 	void remove_substring(std::string &the_string, std::string the_sub_string); 
 
+	void create_directory(std::string &dir_name); 
+
+	void set_directory(std::string &dir_name);
+
+	void get_directory(); 
+
 	bool valid_filename_length(const std::string &name); 
 
 	unsigned long next_POT(double x); // This function converts a number x to the next highest power of two 

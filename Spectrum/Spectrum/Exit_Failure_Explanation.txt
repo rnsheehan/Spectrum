@@ -1,7 +1,0 @@
-Program Exit Explanation
-
-Error occurred: Tue Aug  6 15:32:14 2019
-
-Error: void fft::output_data(std::vector<double> data, double pos_spac, std::string &filename, bool wrap_around)
-position spacing is not positive
-
