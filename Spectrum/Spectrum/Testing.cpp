@@ -38,20 +38,20 @@ void testing::laser_FFT()
 
 	//useful_funcs::get_directory();
 
-	//std::string timefile = "Ed_Laser_WL.csv";
-	//std::string spctfile = "Ed_Laser_Pow.csv";
+	/*std::string timefile = "Ed_Laser_WL.csv";
+	std::string spctfile = "Ed_Laser_Pow.csv";*/
 
-	/*std::string timefile = "PM_Laser_WL.csv";
-	std::string spctfile = "PM_Laser_Pow.csv";*/
+	std::string timefile = "PM_Laser_WL.csv";
+	std::string spctfile = "PM_Laser_Pow.csv";
 
 	//std::string timefile = "WL_Meas_Shallow_I_90.txt";
 	//std::string spctfile = "Pow_Meas_Shallow_I_90.txt";
 
-	//std::string timefile = "Wavelength.txt";
-	//std::string spctfile = "Spectrum_I_150.txt";
+	/*std::string timefile = "Wavelength.txt";
+	std::string spctfile = "Spectrum_I_150.txt";*/
 
-	std::string timefile = "20C_wave.dat";
-	std::string spctfile = "50mA.dat";
+	//std::string timefile = "20C_wave.dat";
+	//std::string spctfile = "50mA.dat";
 
 	std::vector<double> timedata; int ntimes = 0;
 	std::vector<double> spctdata; int nspct = 0;
@@ -72,5 +72,5 @@ void testing::laser_FFT()
 
 	calc._four1(spctdata, nn); // compute the FFT of spctdata
 
-	calc.output_data(spctdata, delta_t, spctfile, ".dat");	
+	calc.output_data(spctdata, delta_t, spctfile, dotcsv);	
 }
