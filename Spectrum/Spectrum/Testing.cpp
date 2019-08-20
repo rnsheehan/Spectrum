@@ -41,8 +41,11 @@ void testing::laser_FFT()
 	/*std::string timefile = "Ed_Laser_WL.csv";
 	std::string spctfile = "Ed_Laser_Pow.csv";*/
 
-	std::string timefile = "PM_Laser_WL.csv";
-	std::string spctfile = "PM_Laser_Pow.csv";
+	/*std::string timefile = "PM_Laser_WL.csv";
+	std::string spctfile = "PM_Laser_Pow.csv";*/
+
+	std::string timefile = "HSSCP_Time_2.csv";
+	std::string spctfile = "HSSCP_SPCT_2.csv";
 
 	//std::string timefile = "WL_Meas_Shallow_I_90.txt";
 	//std::string spctfile = "Pow_Meas_Shallow_I_90.txt";

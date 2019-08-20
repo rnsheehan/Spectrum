@@ -29,11 +29,17 @@ def general_fft_plot():
 	ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
 	
 	try:
-		time_file = "Time_Data.txt"		
-		spct_file = "Spec_Data.txt"
+		#time_file = "Time_Data.txt"		
+		#spct_file = "Spec_Data.txt"
 		
-		frq_file = "Spec_Data_Frq_data.txt"
-		fft_file = "Spec_Data_Abs_FFT_data.txt"
+		#frq_file = "Spec_Data_Frq_data.txt"
+		#fft_file = "Spec_Data_Abs_FFT_data.txt"
+		
+		time_file = "HSSCP_Time.csv"		
+		spct_file = "HSSCP_SPCT.csv"
+		
+		frq_file = "HSSCP_SPCT_Frq_data.csv"
+		fft_file = "HSSCP_SPCT_Abs_FFT_data.csv"
 		
 		if glob.glob(time_file) and glob.glob(spct_file) and glob.glob(frq_file) and glob.glob(fft_file):
 			
@@ -41,11 +47,17 @@ def general_fft_plot():
 			time_data = np.loadtxt(time_file, unpack = True)
 			spct_data = np.loadtxt(spct_file, unpack = True)
 			
+			# scale time values to ns
+			time_data = 1.0e+9*time_data
+			
+			# scale voltage values to mV
+			spct_data = 1.0e+3 * spct_data
+			
 			args = Plotting.plot_arg_single()
 			
 			args.loud = True
-			args.x_label = 'Time / s'
-			args.y_label = 'Signal'
+			args.x_label = 'Time / ns'
+			args.y_label = 'Signal / mV'
 			args.marker = 'r-'
 			args.fig_name = 'Signal_Data'
 			
@@ -57,11 +69,15 @@ def general_fft_plot():
 			frq_data = np.loadtxt(frq_file, unpack = True)
 			spct_data = np.loadtxt(fft_file, unpack = True)
 			
+			# scale frq values to GHz
+			frq_data = 1.0e-9 * frq_data
+			
 			args.loud = True
-			args.x_label = 'Frequency / Hz'
+			args.x_label = 'Frequency / GHz'
 			args.y_label = 'Signal FFT'
 			args.marker = 'g-'
 			args.fig_name = 'Signal_FFT'
+			args.plt_range = [0, 10, 0, 50]
 			
 			Plotting.plot_single_curve(frq_data, spct_data, args)
 			
@@ -161,9 +177,9 @@ def laser_fft_plot():
 		print(e)
 
 # method calls
-#general_fft_plot()
+general_fft_plot()
 
-laser_fft_plot()
+#laser_fft_plot()
 
 
 	
