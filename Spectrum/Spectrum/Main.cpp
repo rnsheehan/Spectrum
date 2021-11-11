@@ -11,9 +11,11 @@
 
 int main() 
 {
-	testing::sample_FFT_calculation(); 
+	//testing::sample_FFT_calculation(); 
 
 	//testing::laser_FFT();  
+
+	testing::laser_LLM(); 
 
 	std::cout << "Press enter to close\n"; 
 	std::cin.get(); 

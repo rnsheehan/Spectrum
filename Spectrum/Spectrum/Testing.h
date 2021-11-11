@@ -7,6 +7,8 @@ namespace testing {
 	void sample_FFT_calculation(); 
 
 	void laser_FFT(); 
+
+	void laser_LLM(); 
 }
 
 #endif

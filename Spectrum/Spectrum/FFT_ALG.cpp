@@ -117,7 +117,7 @@ void fft::output_data(std::vector<double> data, double pos_spac, std::string &fi
 											// divide by 4 because array is of length 2*N
 				std::vector<double> fr_vals(N_fr, 0.0);			
 
-				create_freq_values(N_fr, pos_spac, fr_vals); // compute the frequency space values
+				create_freq_values(N_fr, pos_spac, fr_vals, true); // compute the frequency space values
 
 				// filename for frequency data
 				std::string fr_file = filename + "_Frq_data" + extension;
