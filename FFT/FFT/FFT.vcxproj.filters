@@ -21,12 +21,39 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FFT.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FFT_ALG.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Useful.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Templates.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector_Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FFT.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FFT_ALG.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Useful.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector_Utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
