@@ -157,6 +157,58 @@ void fft::output_data(std::vector<double> data, double pos_spac, std::string &fi
 	}
 }
 
+void fft::compute_transform(unsigned long& N_spctr_data, double& spctr_hor_spacing, std::vector<double>& spctr_data, int& N_fft_data, std::vector<double>& fft_data, std::vector<double>& fft_abcissae)
+{
+	// Compute the FFT of data
+	// N_spctr_data is the number of measured spectral data points
+	// spctr_hor_spacing is the spacing between the measured spectral data points on the horizontal axis
+	// spctr_data is the measured spectral data set
+	// Store the computed transform spectrum in {fft_abcissae, fft_data}
+	// N_fft_data will contain the number of computed FFT data points
+	// fft_data will contain the positive frequency components of the computed FFT, phase information is not retained here
+	// fft_abcissae will contain the horizontal positions for the fft_data in the transformed space
+
+	try {
+		bool c1 = N_spctr_data > 0 ? true : false;
+		bool c2 = spctr_hor_spacing > 0 ? true : false;
+		bool c3 = spctr_data.size() == N_spctr_data ? true : false;
+		bool c10 = c1 && c2 && c3;
+
+		if (c10) {
+			
+			_four1(spctr_data, N_spctr_data); // compute the FFT, data re-formatting performed inside _four1
+
+			N_fft_data = static_cast<int>(spctr_data.size() / 4);	// this may have been re-sized, so use this value instead of the one that was input
+																	// divide by 4 because array is now of length 2*N
+			
+			fft_abcissae.resize(N_fft_data, 0.0); //resize the array to hold the transform space horizontal values
+
+			fft_data.resize(N_fft_data, 0.0); //resize the array to hold the transform space horizontal values
+
+			create_freq_values(N_fft_data, spctr_hor_spacing, fft_abcissae); // compute the transform space horizontal values
+
+			// Store the absolute value of FFT spectrum in fft_data
+			int count = 0; 
+			for (size_t i = 0; i < spctr_data.size() / 2; i += 2) {
+				fft_data[count] = template_funcs::Pythag(spctr_data[i], spctr_data[i + 1]);
+				count++; 
+			}
+		}
+		else {
+			std::string reason = "Error: void fft::compute_transform()\n";
+			if (!c1) reason += "N_spctr_data input is not correct\n";
+			if (!c2) reason += "spctr_hor_spacing input is not correct\n";
+			if (!c3) reason += "spctr_data is not correct size\n";
+			throw std::invalid_argument(reason);
+		}
+
+	}
+	catch (std::invalid_argument& e) {
+		std::cerr << e.what();
+	}
+
+}
+
 // Private member method definitions
 
 void fft::format_four1(std::vector<double> &data)

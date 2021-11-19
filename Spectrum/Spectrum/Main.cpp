@@ -17,6 +17,8 @@ int main()
 
 	testing::laser_LLM(); 
 
+	testing::compute_FFT_test(); 
+
 	std::cout << "Press enter to close\n"; 
 	std::cin.get(); 
 

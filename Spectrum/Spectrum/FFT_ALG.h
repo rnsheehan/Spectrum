@@ -12,6 +12,8 @@ public:
 
 	void output_data(std::vector<double> data, double pos_spac, std::string &filename, std::string extension, bool wrap_around = false);
 
+	void compute_transform(unsigned long& N_spctr_data, double& spctr_hor_spacing, std::vector<double>& spctr_data, int& N_fft_data, std::vector<double>& fft_data, std::vector<double>& fft_abcissae);
+
 private:
 	void four1(std::vector<double> &data, unsigned long nn, int isign);
 
