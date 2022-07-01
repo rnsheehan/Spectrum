@@ -166,7 +166,7 @@ void useful_funcs::get_directory()
 		perror("_getcwd error");
 	else
 	{
-		printf("%s \nLength: %d\n", buffer, strnlen(buffer, 10000));
+		printf("%s \nLength: %d\n", buffer, static_cast<int>( strnlen(buffer, 10000) ) );
 		free(buffer);
 	}
 }

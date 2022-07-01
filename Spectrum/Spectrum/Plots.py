@@ -32,8 +32,8 @@ def general_fft_plot():
 		time_file = "Time_Data.txt"		
 		spct_file = "Spec_Data.txt"
 		
-		frq_file = "LLM_FFT_Frq_data.txt"
-		fft_file = "LLM_FFT_Abs_FFT_data.txt"
+		frq_file = "Spec_Data_Frq_data.txt"
+		fft_file = "Spec_Data_Abs_FFT_data.txt"
 		
 		#time_file = "HSSCP_Time.csv"		
 		#spct_file = "HSSCP_SPCT.csv"
@@ -61,7 +61,7 @@ def general_fft_plot():
 			args.marker = 'r-'
 			args.fig_name = 'Signal_Data'
 			
-			#Plotting.plot_single_curve(time_data, spct_data, args)
+			Plotting.plot_single_curve(time_data, spct_data, args)
 			
 			del time_data; del spct_data; 
 			
@@ -74,12 +74,12 @@ def general_fft_plot():
 			#frq_data = 1.0e+3 * frq_data
 			
 			args.loud = True
-			#args.x_label = 'Frequency / GHz'
-			args.x_label = 'Time / us'
+			args.x_label = 'Frequency / GHz'
+			#args.x_label = 'Time / us'
 			args.y_label = 'Signal FFT'
 			args.marker = 'g-'
 			args.fig_name = 'Signal_FFT'
-			args.plt_range = [0, 1, 0, 2000]
+			#args.plt_range = [0, 100, 0, 2000]
 			
 			Plotting.plot_single_curve(frq_data, spct_data, args)
 			

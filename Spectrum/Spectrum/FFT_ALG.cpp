@@ -201,7 +201,6 @@ void fft::compute_transform(unsigned long& N_spctr_data, double& spctr_hor_spaci
 			if (!c3) reason += "spctr_data is not correct size\n";
 			throw std::invalid_argument(reason);
 		}
-
 	}
 	catch (std::invalid_argument& e) {
 		std::cerr << e.what();
@@ -354,7 +353,7 @@ void fft::four1(std::vector<double> &data, unsigned long nn, int isign)
 
 void fft::create_freq_values(int &N_fr, double &pos_spac, std::vector<double> &fr_vals, bool loud)
 {
-	// Create the set of frequency values that correspond to a straightforward FFT calculation
+	// Create the set of positive frequency values that correspond to a straightforward FFT calculation
 	// R. Sheehan 8 - 8 - 2019
 
 	try {
