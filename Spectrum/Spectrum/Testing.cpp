@@ -192,3 +192,394 @@ void testing::compute_FFT_test()
 	vecut::write_into_file(xfile, fft_abcissae); 
 	vecut::write_into_file(yfile, fft_data);
 }
+
+void testing::example_calculations()
+{
+	// perform some sample calculations
+	// want to test that the numerical FFT computes the theoretical FFT
+	// R. Sheehan 4 - 7 - 2022
+
+	try {
+		std::string the_dir = "Examples"; 
+		useful_funcs::set_directory(the_dir); 
+
+		// sine wave example
+		int Nsmpls = 10000; 
+		double Lx = 10, f1 = 5, f2 = 2; 
+		
+		testing::heaviside(Nsmpls, Lx, f1);
+
+		std::string func_str = "Heaviside"; 
+		std::string timefile = func_str + "_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
+		std::string spctfile = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
+
+		std::vector<double> timedata; int ntimes = 0;
+		std::vector<double> spctdata; int nspct = 0;
+
+		vecut::read_into_vector(timefile, timedata, ntimes);
+
+		vecut::read_into_vector(spctfile, spctdata, nspct);
+
+		double delta_t = timedata[1] - timedata[0];
+
+		unsigned long nn = nspct;
+
+		fft calc;
+
+		calc._four1(spctdata, nn); // compute the FFT of spctdata
+
+		calc.output_data(spctdata, delta_t, spctfile, dottxt);
+	}
+	catch (std::invalid_argument& e) {
+		useful_funcs::exit_failure_output(e.what());
+		exit(EXIT_FAILURE);
+	}
+}
+
+void testing::sine_wave(int Nsmpls, double Lt, double f1, double f2)
+{
+	// compute the trace of a multi-frequency sine-wave over fixed time and no. samples
+	// R. Sheehan 4 - 7 - 2022
+
+	try {
+	
+		bool c1 = Nsmpls > 0 ? true : false; 
+		bool c2 = Lt > 0 ? true : false; 
+		bool c3 = f1 > 0 || f2 > 0 ? true : false; 
+		bool c10 = c1 && c2 && c3;
+
+		if (c10) {
+			std::string time_file = "Sine_Wave_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
+
+			std::string data_file = "Sine_Wave_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
+
+			std::ofstream write1(time_file, std::ios_base::out, std::ios_base::trunc);
+
+			std::ofstream write2(data_file, std::ios_base::out, std::ios_base::trunc);
+
+			if (write1.is_open() && write2.is_open()) {
+
+				double t0 = 0, delta_t = Lt / Nsmpls;
+				double omega1 = f1 > 0.0 ? Two_PI * f1 : 0.0;
+				double omega2 = f2 > 0.0 ? Two_PI * f2 : 0.0;
+
+				for (int i = 0; i < Nsmpls; i++) {
+					write1 << std::setprecision(10) << t0 << "\n";
+					write2 << std::setprecision(10) << sin(omega1 * t0) + sin(omega2 * t0) << "\n";
+					t0 += delta_t; 
+				}
+
+				write1.close();
+				write2.close();
+			}
+		}
+		else {
+			std::string reason;
+			reason = "Error: void testing::sine_wave(int Nsmpls, double Lt, double f1, double f2)\n";
+			
+			throw std::invalid_argument(reason);
+		}
+
+	}
+	catch (std::invalid_argument& e) {
+		useful_funcs::exit_failure_output(e.what());
+		exit(EXIT_FAILURE);
+	}
+}
+
+void testing::cosine_wave(int Nsmpls, double Lt, double f1, double f2)
+{
+	// compute the trace of a multi-frequency cosine-wave over fixed time and no. samples
+	// R. Sheehan 4 - 7 - 2022
+
+	try {
+
+		bool c1 = Nsmpls > 0 ? true : false;
+		bool c2 = Lt > 0 ? true : false;
+		bool c3 = f1 > 0 || f2 > 0 ? true : false;
+		bool c10 = c1 && c2 && c3;
+
+		if (c10) {
+			std::string time_file = "Cosine_Wave_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
+
+			std::string data_file = "Cosine_Wave_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
+
+			std::ofstream write1(time_file, std::ios_base::out, std::ios_base::trunc);
+
+			std::ofstream write2(data_file, std::ios_base::out, std::ios_base::trunc);
+
+			if (write1.is_open() && write2.is_open()) {
+
+				double t0 = 0, delta_t = Lt / Nsmpls;
+				double omega1 = f1 > 0.0 ? Two_PI * f1 : 0.0;
+				double omega2 = f2 > 0.0 ? Two_PI * f2 : 0.0;
+
+				for (int i = 0; i < Nsmpls; i++) {
+					write1 << std::setprecision(10) << t0 << "\n";
+					write2 << std::setprecision(10) << cos(omega1 * t0) + cos(omega2 * t0) << "\n";
+					t0 += delta_t;
+				}
+
+				write1.close();
+				write2.close();
+			}
+		}
+		else {
+			std::string reason;
+			reason = "Error: void testing::cosine_wave(int Nsmpls, double Lt, double f1, double f2)\n";
+
+			throw std::invalid_argument(reason);
+		}
+
+	}
+	catch (std::invalid_argument& e) {
+		useful_funcs::exit_failure_output(e.what());
+		exit(EXIT_FAILURE);
+	}
+}
+
+void testing::gaussian(int Nsmpls, double Lt, double mean, double stdev)
+{
+	// compute the trace of a Gaussian over fixed time and no. samples
+	// Gauss(x) = A exp( -( x - mean )^{2} / ( 2 stdev^{2} ) )
+	// R. Sheehan 4 - 7 - 2022
+
+	try {
+
+		bool c1 = Nsmpls > 0 ? true : false;
+		bool c2 = Lt > 0 ? true : false;
+		bool c3 = mean > 0 && stdev > 0 ? true : false;
+		bool c10 = c1 && c2 && c3;
+
+		if (c10) {
+			std::string time_file = "Gaussian_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
+
+			std::string data_file = "Gaussian_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
+
+			std::ofstream write1(time_file, std::ios_base::out, std::ios_base::trunc);
+
+			std::ofstream write2(data_file, std::ios_base::out, std::ios_base::trunc);
+
+			if (write1.is_open() && write2.is_open()) {
+
+				double t0 = 0, delta_t = Lt / Nsmpls;
+				double numer = 2.0*template_funcs::DSQR(stdev);
+				
+				for (int i = 0; i < Nsmpls; i++) {
+					double arg = (-1.0*template_funcs::DSQR(t0 - mean))/ numer; // -( x - mean )^{2} / ( 2 stdev^{2} )
+					write1 << std::setprecision(10) << t0 << "\n";
+					write2 << std::setprecision(10) << exp(arg) << "\n";
+					t0 += delta_t;
+				}
+
+				write1.close(); write2.close(); 
+			}
+		}
+		else {
+			std::string reason;
+			reason = "Error: void testing::gaussian(int Nsmpls, double Lt, double mean, double stdev)\n";
+
+			throw std::invalid_argument(reason);
+		}
+	}
+	catch (std::invalid_argument& e) {
+		useful_funcs::exit_failure_output(e.what());
+		exit(EXIT_FAILURE);
+	}
+}
+
+void testing::exponential(int Nsmpls, double Lt, double centre, double decay)
+{
+	// compute the trace of a decaying exponential over fixed time and no. samples
+	// Exp(x) = A exp( -decay | x - centre | )
+	// R. Sheehan 4 - 7 - 2022
+
+	try {
+
+		bool c1 = Nsmpls > 0 ? true : false;
+		bool c2 = Lt > 0 ? true : false;
+		bool c3 = decay > 0 && centre > 0 ? true : false;
+		bool c10 = c1 && c2 && c3;
+
+		if (c10) {
+			std::string time_file = "Exponential_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for exponential-wave data
+
+			std::string data_file = "Exponential_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for exponential-wave data
+
+			std::ofstream write1(time_file, std::ios_base::out, std::ios_base::trunc);
+
+			std::ofstream write2(data_file, std::ios_base::out, std::ios_base::trunc);
+
+			if (write1.is_open() && write2.is_open()) {
+
+				double t0 = 0, delta_t = Lt / Nsmpls;
+				
+				for (int i = 0; i < Nsmpls; i++) {
+					double arg = -decay * abs(t0 - centre); // -decay | x - centre |
+					write1 << std::setprecision(10) << t0 << "\n";
+					write2 << std::setprecision(10) << exp(arg) << "\n";
+					t0 += delta_t;
+				}
+
+				write1.close(); write2.close(); 
+			}
+		}
+		else {
+			std::string reason;
+			reason = "Error: void testing::exponential(int Nsmpls, double Lt, double centre, double decay)\n";
+
+			throw std::invalid_argument(reason);
+		}
+	}
+	catch (std::invalid_argument& e) {
+		useful_funcs::exit_failure_output(e.what());
+		exit(EXIT_FAILURE);
+	}
+}
+
+void testing::tophat(int Nsmpls, double Lt, double centre, double width)
+{
+	// compute the trace of a top-hat function over fixed time and no. samples
+	// TH(x) = 1 for |x-c| < width, -1 ow
+	// R. Sheehan 4 - 7 - 2022
+
+	try {
+
+		bool c1 = Nsmpls > 0 ? true : false;
+		bool c2 = Lt > 0 ? true : false;
+		bool c3 = width > 0 && centre > 0 ? true : false;
+		bool c10 = c1 && c2 && c3;
+
+		if (c10) {
+			std::string time_file = "Tophat_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for exponential-wave data
+
+			std::string data_file = "Tophat_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for exponential-wave data
+
+			std::ofstream write1(time_file, std::ios_base::out, std::ios_base::trunc);
+
+			std::ofstream write2(data_file, std::ios_base::out, std::ios_base::trunc);
+
+			if (write1.is_open() && write2.is_open()) {
+
+				double t0 = 0, delta_t = Lt / Nsmpls;
+
+				for (int i = 0; i < Nsmpls; i++) {
+					double val = abs(t0-centre) <= width ? 1.0 : -1.0;
+					write1 << std::setprecision(10) << t0 << "\n";
+					write2 << std::setprecision(10) << val << "\n";
+					t0 += delta_t;
+				}
+
+				write1.close(); write2.close();
+			}
+		}
+		else {
+			std::string reason;
+			reason = "Error: void testing::tophat(int Nsmpls, double Lt, double centre, double width)\n";
+
+			throw std::invalid_argument(reason);
+		}
+	}
+	catch (std::invalid_argument& e) {
+		useful_funcs::exit_failure_output(e.what());
+		exit(EXIT_FAILURE);
+	}
+}
+
+void testing::heaviside(int Nsmpls, double Lt, double centre)
+{
+	// compute the trace of a Heaviside function over fixed time and no. samples
+	// H(x) = 1 for |x-c| < c, 0 ow
+	// R. Sheehan 4 - 7 - 2022
+
+	try {
+
+		bool c1 = Nsmpls > 0 ? true : false;
+		bool c2 = Lt > 0 ? true : false;
+		bool c3 = centre > 0 ? true : false;
+		bool c10 = c1 && c2 && c3;
+
+		if (c10) {
+			std::string time_file = "Heaviside_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for exponential-wave data
+
+			std::string data_file = "Heaviside_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for exponential-wave data
+
+			std::ofstream write1(time_file, std::ios_base::out, std::ios_base::trunc);
+
+			std::ofstream write2(data_file, std::ios_base::out, std::ios_base::trunc);
+
+			if (write1.is_open() && write2.is_open()) {
+
+				double t0 = 0, delta_t = Lt / Nsmpls;
+
+				for (int i = 0; i < Nsmpls; i++) {
+					double val = t0 >= centre ? 1.0 : 0;
+					write1 << std::setprecision(10) << t0 << "\n";
+					write2 << std::setprecision(10) << val << "\n";
+					t0 += delta_t;
+				}
+
+				write1.close(); write2.close();
+			}
+		}
+		else {
+			std::string reason;
+			reason = "Error: void testing::heaviside(int Nsmpls, double Lt, double centre)\n";
+
+			throw std::invalid_argument(reason);
+		}
+	}
+	catch (std::invalid_argument& e) {
+		useful_funcs::exit_failure_output(e.what());
+		exit(EXIT_FAILURE);
+	}
+}
+
+void testing::signum(int Nsmpls, double Lt, double centre)
+{
+	// compute the trace of a signum function over fixed time and no. samples
+	// H(x) = 1 for |x-c| < c, -1 ow
+	// R. Sheehan 4 - 7 - 2022
+
+	try {
+
+		bool c1 = Nsmpls > 0 ? true : false;
+		bool c2 = Lt > 0 ? true : false;
+		bool c3 = centre > 0 ? true : false;
+		bool c10 = c1 && c2 && c3;
+
+		if (c10) {
+			std::string time_file = "Signum_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for exponential-wave data
+
+			std::string data_file = "Signum_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for exponential-wave data
+
+			std::ofstream write1(time_file, std::ios_base::out, std::ios_base::trunc);
+
+			std::ofstream write2(data_file, std::ios_base::out, std::ios_base::trunc);
+
+			if (write1.is_open() && write2.is_open()) {
+
+				double t0 = 0, delta_t = Lt / Nsmpls;
+
+				for (int i = 0; i < Nsmpls; i++) {
+					double val = t0 >= centre ? 1.0 : -1.0;
+					write1 << std::setprecision(10) << t0 << "\n";
+					write2 << std::setprecision(10) << val << "\n";
+					t0 += delta_t;
+				}
+
+				write1.close(); write2.close();
+			}
+		}
+		else {
+			std::string reason;
+			reason = "Error: void testing::signum(int Nsmpls, double Lt, double centre)\n";
+
+			throw std::invalid_argument(reason);
+		}
+	}
+	catch (std::invalid_argument& e) {
+		useful_funcs::exit_failure_output(e.what());
+		exit(EXIT_FAILURE);
+	}
+}

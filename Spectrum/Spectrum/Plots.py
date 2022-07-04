@@ -29,17 +29,16 @@ def general_fft_plot():
 	ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
 	
 	try:
-		time_file = "Time_Data.txt"		
-		spct_file = "Spec_Data.txt"
+		os.chdir('Examples/')
+
+		Nsmpls = 500
+		wavename = 'Heaviside'
+
+		time_file = "%(v2)s_Time_Nsmpls_%(v1)d.txt"%{"v2":wavename, "v1":Nsmpls}		
+		spct_file = "%(v2)s_Data_Nsmpls_%(v1)d.txt"%{"v2":wavename, "v1":Nsmpls}
 		
-		frq_file = "Spec_Data_Frq_data.txt"
-		fft_file = "Spec_Data_Abs_FFT_data.txt"
-		
-		#time_file = "HSSCP_Time.csv"		
-		#spct_file = "HSSCP_SPCT.csv"
-		
-		#frq_file = "HSSCP_SPCT_Frq_data.csv"
-		#fft_file = "HSSCP_SPCT_Abs_FFT_data.csv"
+		frq_file = "%(v2)s_Data_Nsmpls_%(v1)d_Frq_data.txt"%{"v2":wavename, "v1":Nsmpls}
+		fft_file = "%(v2)s_Data_Nsmpls_%(v1)d_FFT_data.txt"%{"v2":wavename, "v1":Nsmpls}
 		
 		if glob.glob(time_file) and glob.glob(spct_file) and glob.glob(frq_file) and glob.glob(fft_file):
 			
@@ -47,43 +46,59 @@ def general_fft_plot():
 			time_data = np.loadtxt(time_file, unpack = True)
 			spct_data = np.loadtxt(spct_file, unpack = True)
 			
-			# scale time values to ns
-			#time_data = 1.0e+9*time_data
-			
-			# scale voltage values to mV
-			#spct_data = 1.0e+3 * spct_data
-			
 			args = Plotting.plot_arg_single()
 			
-			args.loud = True
-			args.x_label = 'Time / ns'
-			args.y_label = 'Signal / mV'
+			args.loud = False
+			args.x_label = 'Time / time-units'
+			args.y_label = 'Signal / volt-units'
 			args.marker = 'r-'
-			args.fig_name = 'Signal_Data'
+			args.fig_name = spct_file.replace('.txt','')
 			
 			Plotting.plot_single_curve(time_data, spct_data, args)
 			
 			del time_data; del spct_data; 
+
+			# plot the FFT in wrap-around format
+			#spct_data = np.loadtxt(fft_wrap, unpack = True)
+			#time_data = np.arange(0, len(spct_data), 1)
+
+			#args.loud = False
+			#args.x_label = 'Time / time-units'
+			#args.y_label = 'Signal / volt-units'
+			#args.marker = 'r-'
+			#args.fig_name = 'Signal_FFT_Wrap_Around'
+			
+			#Plotting.plot_single_curve(time_data, spct_data, args)
+
+			#del time_data; del spct_data; 
 			
 			# plot the computed FFT
 			frq_data = np.loadtxt(frq_file, unpack = True)
-			spct_data = np.loadtxt(fft_file, unpack = True)
-			
-			# scale frq values to GHz
-			#frq_data = 1.0e-9 * frq_data
-			#frq_data = 1.0e+3 * frq_data
-			
+			spct_data = np.loadtxt(fft_file, delimiter = ',', unpack = True)
+
+			# need to scale plots according to max{Re{FFT}} or max{Im{FFT}}
+			max_re = np.max(spct_data[0]); max_im = np.max(spct_data[1]); 
+			max_val = max(max_re, max_im)
+			max_val = np.max(spct_data[2])
+
+			hv_data = []; marks = []; labs = []; 
+			hv_data.append([frq_data, spct_data[0] / max_val ]); marks.append(Plotting.labs_lins[0]); labs.append('Re{FFT}')
+			hv_data.append([frq_data, spct_data[1] / max_val]); marks.append(Plotting.labs_lins[1]); labs.append('Im{FFT}')
+			hv_data.append([frq_data, spct_data[2] / max_val] ); marks.append(Plotting.labs_lins[2]); labs.append('Abs{FFT}')
+			#hv_data.append([frq_data, spct_data[3]]); marks.append(Plotting.labs_lins[3]); labs.append('Arg{FFT}')
+
+			args = Plotting.plot_arg_multiple()
+
 			args.loud = True
-			args.x_label = 'Frequency / GHz'
-			#args.x_label = 'Time / us'
+			args.x_label = 'Frequency / 1/time-units'
 			args.y_label = 'Signal FFT'
-			args.marker = 'g-'
-			args.fig_name = 'Signal_FFT'
-			#args.plt_range = [0, 100, 0, 2000]
+			args.crv_lab_list = labs
+			args.mrk_list = marks
+			args.plt_range = [-3, 3, -1, 1]
+			args.fig_name = fft_file.replace('.txt','')		
+			Plotting.plot_multiple_curves(hv_data, args)
 			
-			Plotting.plot_single_curve(frq_data, spct_data, args)
-			
-			del frq_data; del spct_data; 
+			del frq_data; del spct_data; del hv_data; del labs; del marks; 
 			
 		else:
 			ERR_STATEMENT = ERR_STATEMENT + "\nInput file not found"
@@ -182,7 +197,3 @@ def laser_fft_plot():
 general_fft_plot()
 
 #laser_fft_plot()
-
-
-	
-	

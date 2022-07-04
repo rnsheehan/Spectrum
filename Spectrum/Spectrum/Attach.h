@@ -39,6 +39,10 @@ static const double PI_6 = ((2.0 / 3.0)*p); // pi / 6
 
 static const int MAX_PATH_LENGTH = 250; // max. length for a directory in Windows OS
 
+// Types of Output Format for FFT data
+static const bool WRAP_AROUND = true; 
+static const bool STNDRD = false; 
+
 static const std::string empty_str = "";
 static const std::string dottxt = ".txt";
 static const std::string dotcsv= ".csv";
