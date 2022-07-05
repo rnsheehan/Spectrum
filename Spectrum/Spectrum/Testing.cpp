@@ -249,6 +249,8 @@ void testing::inverse_FFT_test()
 		// sine wave example
 		int Nsmpls = 10000;
 		
+		// I think the problems with the Signum and the Top-Hat functions are to do with the no. samples and the padding
+
 		std::string func_str = "Signum";
 		std::string timefile = func_str + "_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
 		std::string spctfile = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
