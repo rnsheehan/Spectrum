@@ -16,6 +16,8 @@ namespace testing {
 
 	void example_calculations();
 
+	void inverse_FFT_test();
+
 	void sine_wave(int Nsmpls, double Lt, double f1, double f2);
 
 	void cosine_wave(int Nsmpls, double Lt, double f1, double f2); 

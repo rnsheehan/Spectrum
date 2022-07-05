@@ -19,8 +19,7 @@ void fft::_four1(std::vector<double> &data, unsigned long &nn, int isign, bool F
 	// nn is the length of the original data set, it gets changed by the pad data algorithm if necessary
 	// isign is a switch that tells the code to compute the FFT or inverse FFT
 	// FORMAT_DATA is a boolean switch that tells the code to decide if data must be formatted for FFT
-	// see format_four1 for details 
-	
+	// see format_four1 for details 	
 
 	// Replaces data[1..2*nn] by its discrete Fourier transform, if isign is input as 1
 	// Replace data[1..2*nn] by nn times its inverse dicrete Fourier transform, if isign is input as -1
@@ -48,12 +47,7 @@ void fft::_four1(std::vector<double> &data, unsigned long &nn, int isign, bool F
 				four1(data, nn, isign);
 
 				// scale by 1/N in the case of an inverse FT
-				// Not yet clear what effect this has on other algorithms
-				/*if(isign == IFT){
-				for(int i=1; i<=data.n_elems(); i++){
-				data[i] /= nn;
-				}
-				}*/
+				if(isign == -1) for(size_t i = 0; i < data.size(); i++) data[i] /= nn;
 			}
 			else {
 				std::string reason;
@@ -85,7 +79,7 @@ void fft::_four1(std::vector<double> &data, unsigned long &nn, int isign, bool F
 	}
 }
 
-void fft::output_data(std::vector<double> data, double smpl_spac, std::string& filename, std::string extension)
+void fft::output_data(std::vector<double> data, double smpl_spac, std::string& filename, std::string extension, int isign)
 {
 	// Output the full FFT spectrum at positive and negative frequency components
 	// R. Sheehan 4 - 7 - 2022
@@ -101,7 +95,7 @@ void fft::output_data(std::vector<double> data, double smpl_spac, std::string& f
 
 			std::vector<double> fr_vals(N_smpls, 0.0);
 
-			create_freq_values(N_smpls, smpl_spac, fr_vals, true); // compute the frequency space values
+			create_freq_values(N_smpls, smpl_spac, fr_vals, isign, true); // compute the frequency space values
 
 			// filename for frequency data
 			std::string fr_file = filename + "_Frq_data" + extension;
@@ -115,15 +109,24 @@ void fft::output_data(std::vector<double> data, double smpl_spac, std::string& f
 			std::ofstream write(fft_file, std::ios_base::out, std::ios_base::trunc);
 
 			if (write.is_open()) {
-
-				// output negative frequency FFT data in the form real, imag, abs-value, phase
-				for (size_t i = N_smpls; i < data.size()-1; i += 2) {
-					write << std::setprecision(10) << data[i] << " , " << data[i + 1] << " , " << template_funcs::Pythag(data[i], data[i + 1]) << " , " << atan2(data[i + 1], data[i]) << "\n";
+				
+				if (isign == 1) {
+					// output negative frequency FFT data in the form real, imag, abs-value, phase
+					for (size_t i = N_smpls; i < data.size() - 1; i += 2) {
+						write << std::setprecision(10) << data[i] << " , " << data[i + 1] << " , " << template_funcs::Pythag(data[i], data[i + 1]) << " , " << atan2(data[i + 1], data[i]) << "\n";
+					}
 				}
 
 				// output positive frequency FFT data in the form real, imag, abs-value, phase
 				for (size_t i = 0; i < N_smpls; i += 2) {
 					write << std::setprecision(10) << data[i] << " , " << data[i + 1] << " , " << template_funcs::Pythag(data[i], data[i + 1]) << " , " << atan2(data[i + 1], data[i]) << "\n";
+				}
+
+				if (isign == -1) {
+					// output the "negative" frequency components for the inverse FT
+					for (size_t i = N_smpls; i < data.size() - 1; i += 2) {
+						write << std::setprecision(10) << data[i] << " , " << data[i + 1] << " , " << template_funcs::Pythag(data[i], data[i + 1]) << " , " << atan2(data[i + 1], data[i]) << "\n";
+					}
 				}
 
 				write.close();
@@ -134,10 +137,42 @@ void fft::output_data(std::vector<double> data, double smpl_spac, std::string& f
 		}
 		else {
 			std::string reason;
-			reason = "Error: void fft::output_data(std::vector<double> data, double smpl_spac, std::string &filename, bool wrap_around)\n";
+			reason = "Error: void fft::output_data(std::vector<double> data, double smpl_spac, std::string& filename, std::string extension)\n";
 			if (data.empty()) reason += "data is empty\n";
 			if (filename == empty_str || !useful_funcs::valid_filename_length(filename)) reason += "Filename: " + filename + " is not valid\n";
 			if (!(smpl_spac > 0.0)) reason += "position spacing is not positive\n";
+			throw std::invalid_argument(reason);
+		}
+	}
+	catch (std::invalid_argument& e) {
+		useful_funcs::exit_failure_output(e.what());
+		exit(EXIT_FAILURE);
+	}
+}
+
+void fft::output_wrap_around(std::vector<double> data, std::string& filename, std::string extension)
+{
+	// Output the full FFT spectrum at positive and negative frequency components in its native wrap-around format
+	// R. Sheehan 5 - 7 - 2022
+
+	try {
+
+		if (!data.empty() && filename != empty_str && useful_funcs::valid_filename_length(filename)) {
+
+			// remove .txt from end of filename
+			useful_funcs::remove_substring(filename, extension);
+
+			// output the positive + negative frequency components of the computed FFT
+
+			std::string fft_file = filename + "_FFT_data_wrap_around" + extension; // filename for FFT data
+
+			vecut::write_into_file(fft_file, data); 
+		}
+		else {
+			std::string reason;
+			reason = "Error: void fft::output_wrap_around(std::vector<double> data, std::string& filename, std::string extension)\n";
+			if (data.empty()) reason += "data is empty\n";
+			if (filename == empty_str || !useful_funcs::valid_filename_length(filename)) reason += "Filename: " + filename + " is not valid\n";
 			throw std::invalid_argument(reason);
 		}
 	}
@@ -333,12 +368,12 @@ void fft::pad_data(std::vector<double> &data, unsigned long &nn, bool CMPLX_ARR)
 	// Pad a data set with zeroes if the length of the data set is not a power of two
 	// Only need to add zeroes to the data set if nn is not a power of two
 
-	// If data input into four1 must be in cmplx format, why is there an option to only scale the size by n and not 2n? 
-	// R. Sheehan 4 - 7 - 2022
-
 	try {
 		if (data.size() > 1) {
+
+			// test the array size to see if it is a POT
 			if (!useful_funcs::is_POT(nn)) {
+				// data has length nn which is not a POT this must be adjusted
 
 				// Convert nn to the next highest power of two
 				nn = useful_funcs::next_POT(nn);
@@ -346,7 +381,7 @@ void fft::pad_data(std::vector<double> &data, unsigned long &nn, bool CMPLX_ARR)
 				std::vector<double> tmp_data;
 
 				if (CMPLX_ARR) {
-					// data is an array of complex numbers and must have length 2*nn
+					// data, which has already been converted to CMPLX_ARR, must be stored in an array of size 2nn, nn is a POT
 					tmp_data.resize(2 * nn, 0.0);
 					
 					for (size_t i = 0; i < data.size(); i++) {
@@ -355,6 +390,9 @@ void fft::pad_data(std::vector<double> &data, unsigned long &nn, bool CMPLX_ARR)
 				}
 				else {
 					// data is an array of real numbers and must have length nn
+
+					// what's the point of this option? is this to be used on the case of realft? R. Sheehan 5 - 7 - 2022
+
 					tmp_data.resize(nn, 0.0);
 					
 					for (size_t i = 0; i < data.size(); i++) {
@@ -492,29 +530,43 @@ void fft::create_pos_freq_values(int &N_pos_fr, double &smpl_spac, std::vector<d
 	}
 }
 
-void fft::create_freq_values(int& N_smpls, double& smpl_spac, std::vector<double>& fr_vals, bool loud)
+void fft::create_freq_values(int& N_smpls, double& smpl_spac, std::vector<double>& fr_vals, int isign, bool loud)
 {
-	// create the full list of positive and negative frequency values
+	// create the full list of positive and negative frequency values in the case of FFT
+	// create the full list of time values in the case of IFT
 	// R. Sheehan 4 - 7 - 2022
 
 	try {
 	
-		if (smpl_spac > 0.0 && static_cast<int>(fr_vals.size()) == N_smpls)	{
+		if (smpl_spac > 0.0 && static_cast<int>(fr_vals.size()) == N_smpls && abs(isign) == 1)	{
 			// Compute the sample spacing in frequency space
 			// delta_f = 1 / (N_smpls * delta), delta = sample spacing in time space
-			double delta_fr = 1.0 / (N_smpls * smpl_spac), fr_final = 1.0 / (2.0 * smpl_spac), fr0 = -fr_final;
+			double delta_fr = 1.0 / (N_smpls * smpl_spac), fr_final = 0.0, fr0 = 0.0;
 
-			if (loud) {
+			if (isign == 1) {
+				fr_final = 1.0 / (2.0 * smpl_spac);  fr0 = -fr_final;
+			}
+
+			if (isign == -1) {
+				fr_final = N_smpls * delta_fr;  fr0 = 0.0;
+			}
+
+			if (loud && isign == 1) {
 				std::cout << "\nFrequency Space\n";
-				std::cout << "No. positive freq. cpts N_{pos} = " << N_smpls << ", delta-T = " << smpl_spac << ", 1/2T = " << fr_final << "\n";
+				std::cout << "No. freq. cpts N = " << N_smpls << ", delta-T = " << smpl_spac << ", 1/2T = " << fr_final << "\n";
 				std::cout << "f0 = " << fr0 << " , ff = " << fr_final << " , df = " << delta_fr << "\n\n";
+			}
+
+			if (loud && isign == -1) {
+				std::cout << "\nTime Space\n";
+				std::cout << "No. time cpts N = " << N_smpls << ", delta-f = " << smpl_spac << "\n";
+				std::cout << "t0 = " << fr0 << " , tf = " << fr_final << " , df = " << delta_fr << "\n\n";
 			}
 
 			for (int i = 0; i < N_smpls; i++) {
 				fr_vals[i] = fr0;
 				fr0 += delta_fr;
 			}
-
 		}
 		else {
 			std::string reason;

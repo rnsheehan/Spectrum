@@ -29,17 +29,24 @@ def general_fft_plot():
 	ERR_STATEMENT = "Error: " + MOD_NAME_STR + FUNC_NAME
 	
 	try:
-		os.chdir('Examples/')
+		os.chdir('c:/Users/robertsheehan/Research/Notes/FFT/Examples/')
 
-		Nsmpls = 500
-		wavename = 'Heaviside'
+		Nsmpls = 10000
+		wavename = 'Exponential'
 
 		time_file = "%(v2)s_Time_Nsmpls_%(v1)d.txt"%{"v2":wavename, "v1":Nsmpls}		
 		spct_file = "%(v2)s_Data_Nsmpls_%(v1)d.txt"%{"v2":wavename, "v1":Nsmpls}
-		
-		frq_file = "%(v2)s_Data_Nsmpls_%(v1)d_Frq_data.txt"%{"v2":wavename, "v1":Nsmpls}
-		fft_file = "%(v2)s_Data_Nsmpls_%(v1)d_FFT_data.txt"%{"v2":wavename, "v1":Nsmpls}
-		
+
+		IFT = True; 
+
+		if IFT:		
+			frq_file = "%(v2)s_Data_Nsmpls_%(v1)d_IFT_Frq_data.txt"%{"v2":wavename, "v1":Nsmpls}
+			fft_file = "%(v2)s_Data_Nsmpls_%(v1)d_IFT_FFT_data.txt"%{"v2":wavename, "v1":Nsmpls}
+		else:
+			frq_file = "%(v2)s_Data_Nsmpls_%(v1)d_Frq_data.txt"%{"v2":wavename, "v1":Nsmpls}
+			fft_file = "%(v2)s_Data_Nsmpls_%(v1)d_FFT_data.txt"%{"v2":wavename, "v1":Nsmpls}
+			fft_wrap = "%(v2)s_Data_Nsmpls_%(v1)d_FFT_data_wrap_around.txt"%{"v2":wavename, "v1":Nsmpls}
+
 		if glob.glob(time_file) and glob.glob(spct_file) and glob.glob(frq_file) and glob.glob(fft_file):
 			
 			# plot the time series
@@ -48,7 +55,7 @@ def general_fft_plot():
 			
 			args = Plotting.plot_arg_single()
 			
-			args.loud = False
+			args.loud = True
 			args.x_label = 'Time / time-units'
 			args.y_label = 'Signal / volt-units'
 			args.marker = 'r-'
@@ -79,12 +86,12 @@ def general_fft_plot():
 			# need to scale plots according to max{Re{FFT}} or max{Im{FFT}}
 			max_re = np.max(spct_data[0]); max_im = np.max(spct_data[1]); 
 			max_val = max(max_re, max_im)
-			max_val = np.max(spct_data[2])
+			#max_val = np.max(spct_data[2])
 
 			hv_data = []; marks = []; labs = []; 
-			hv_data.append([frq_data, spct_data[0] / max_val ]); marks.append(Plotting.labs_lins[0]); labs.append('Re{FFT}')
-			hv_data.append([frq_data, spct_data[1] / max_val]); marks.append(Plotting.labs_lins[1]); labs.append('Im{FFT}')
-			hv_data.append([frq_data, spct_data[2] / max_val] ); marks.append(Plotting.labs_lins[2]); labs.append('Abs{FFT}')
+			hv_data.append([frq_data, spct_data[0] ]); marks.append(Plotting.labs_lins[0]); labs.append('Re{FFT}')
+			hv_data.append([frq_data, spct_data[1] ]); marks.append(Plotting.labs_lins[1]); labs.append('Im{FFT}')
+			hv_data.append([frq_data, spct_data[2] ] ); marks.append(Plotting.labs_lins[2]); labs.append('Abs{FFT}')
 			#hv_data.append([frq_data, spct_data[3]]); marks.append(Plotting.labs_lins[3]); labs.append('Arg{FFT}')
 
 			args = Plotting.plot_arg_multiple()
@@ -94,7 +101,7 @@ def general_fft_plot():
 			args.y_label = 'Signal FFT'
 			args.crv_lab_list = labs
 			args.mrk_list = marks
-			args.plt_range = [-3, 3, -1, 1]
+			#args.plt_range = [-2, 10, -1, 1]
 			args.fig_name = fft_file.replace('.txt','')		
 			Plotting.plot_multiple_curves(hv_data, args)
 			

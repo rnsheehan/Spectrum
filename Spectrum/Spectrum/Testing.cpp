@@ -236,6 +236,91 @@ void testing::example_calculations()
 	}
 }
 
+void testing::inverse_FFT_test()
+{
+	// perform some sample calculations
+	// want to test that the numerical FFT computes the theoretical FFT
+	// R. Sheehan 4 - 7 - 2022
+
+	try {
+		std::string the_dir = "c:\\users\\robertsheehan\\Research\\Notes\\FFT\\Examples";
+		useful_funcs::set_directory(the_dir);
+
+		// sine wave example
+		int Nsmpls = 10000;
+		
+		std::string func_str = "Signum";
+		std::string timefile = func_str + "_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
+		std::string spctfile = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
+
+		std::vector<double> timedata; int ntimes = 0;
+		std::vector<double> spctdata; int nspct = 0;
+
+		vecut::read_into_vector(timefile, timedata, ntimes);
+
+		vecut::read_into_vector(spctfile, spctdata, nspct);
+
+		double delta_t = timedata[1] - timedata[0];
+
+		unsigned long nn = nspct;
+
+		fft calc;
+
+		int isign = +1;
+		bool FMT_DATA = true;
+
+		calc._four1(spctdata, nn, isign, FMT_DATA); // compute the FFT of spctdata
+
+		calc.output_data(spctdata, delta_t, spctfile, dottxt, isign); // output the data in appropriate format
+
+		// Read the computed FFT data back into memory so that inverse FFT can be computed
+		
+		std::string freq_file = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + "_Frq_data" + dottxt;
+		std::string fft_file = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + "_FFT_data" + dottxt;
+		std::string fft_wrap = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + "_FFT_data_wrap_around" + dottxt;
+		std::string ift_file = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + "_IFT" + dottxt;
+
+		int Nsmpls_rd = 0, Nrows = 0, Ncols = 0; 
+		double delta_f; 
+		std::vector<double> frq_data; 
+		std::vector<std::vector<double>> fft_data; 
+
+		vecut::read_into_vector(freq_file, frq_data, Nsmpls_rd); // read the frequency data back into memory
+		delta_f = frq_data[1 + (Nsmpls_rd / 2)]; 
+		
+		vecut::read_into_matrix(fft_file, fft_data, Nrows, Ncols); // read the computed FFT data back into memory
+
+		std::cout << Nsmpls_rd << " have been read from " << freq_file << "\n"; 
+		std::cout << "Frequency sample spacing: "<< delta_f <<"\n";
+		std::cout << Nrows << " rows have been read from " << fft_file << "\n";
+		std::cout << Ncols << " cols have been read from " << fft_file << "\n\n";
+
+		// store the computed FFT in a single array
+		nn = Nsmpls_rd; 
+		std::vector<double> fftvals(2 * Nsmpls_rd, 0.0); 
+
+		int count = 0; 
+		for (int i = 0; i < Nsmpls_rd; i++) {
+			fftvals[count] = fft_data[i][0]; 
+			fftvals[count+1] = fft_data[i][1]; 
+			count += 2; 
+		}
+
+		fft inverse_calc; 
+
+		isign = -1;
+		FMT_DATA = false;
+
+		inverse_calc._four1(fftvals, nn, isign, FMT_DATA);
+
+		inverse_calc.output_data(fftvals, delta_f, ift_file, dottxt, isign);
+	}
+	catch (std::invalid_argument& e) {
+		useful_funcs::exit_failure_output(e.what());
+		exit(EXIT_FAILURE);
+	}
+}
+
 void testing::sine_wave(int Nsmpls, double Lt, double f1, double f2)
 {
 	// compute the trace of a multi-frequency sine-wave over fixed time and no. samples

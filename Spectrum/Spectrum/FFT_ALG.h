@@ -12,7 +12,9 @@ public:
 
 	void output_pos_data(std::vector<double> data, double smpl_spac, std::string &filename, std::string extension, bool output_type = STNDRD);
 
-	void output_data(std::vector<double> data, double smpl_spac, std::string &filename, std::string extension);
+	void output_data(std::vector<double> data, double smpl_spac, std::string &filename, std::string extension, int isign = 1);
+
+	void output_wrap_around(std::vector<double> data, std::string& filename, std::string extension); 
 
 	void compute_transform(unsigned long& N_spctr_data, double& spctr_hor_spacing, std::vector<double>& spctr_data, int& N_fft_data, std::vector<double>& fft_data, std::vector<double>& fft_abcissae);
 
@@ -23,7 +25,7 @@ private:
 
 	void pad_data(std::vector<double> &data, unsigned long &nn, bool CMPLX_ARR);
 
-	void create_freq_values(int & N_smpls, double &smpl_spac, std::vector<double> &fr_vals, bool loud = false);
+	void create_freq_values(int & N_smpls, double &smpl_spac, std::vector<double> &fr_vals, int isign = 1, bool loud = false);
 
 	void create_pos_freq_values(int &N_fr, double &smpl_spac, std::vector<double> &fr_vals, bool loud = false);
 
