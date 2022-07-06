@@ -21,6 +21,10 @@ public:
 private:
 	void four1(std::vector<double> &data, unsigned long nn, int isign);
 
+	void twofft(std::vector<double> &data1, std::vector<double> &data2, std::vector<double> &fft1, std::vector<double> &fft2, unsigned long n);
+
+	void realft(std::vector<double> &data, unsigned long n, int isign);
+
 	void format_four1(std::vector<double> &data);
 
 	void pad_data(std::vector<double> &data, unsigned long &nn, bool CMPLX_ARR);
