@@ -19,9 +19,13 @@ int main()
 
 	//testing::compute_FFT_test(); 
 
-	//testing::example_calculations(); 
+	testing::example_calculations(); 
 
-	testing::inverse_FFT_test(); 
+	//testing::inverse_FFT_test(); 
+
+	//testing::real_ft_test(); 
+
+	testing::two_ft_test(); 
 
 	std::cout << "Press enter to close\n"; 
 	std::cin.get(); 

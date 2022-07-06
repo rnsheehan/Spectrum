@@ -10,6 +10,10 @@ public:
 
 	void _four1(std::vector<double> &data, unsigned long &nn, int isign = 1, bool FORMAT_DATA = true);
 
+	void _twofft(std::vector<double>& data1, std::vector<double>& data2, std::vector<double>& fft1, std::vector<double>& fft2, unsigned long n);
+
+	void _realft(std::vector<double>& data, unsigned long n, int isign);
+
 	void output_pos_data(std::vector<double> data, double smpl_spac, std::string &filename, std::string extension, bool output_type = STNDRD);
 
 	void output_data(std::vector<double> data, double smpl_spac, std::string &filename, std::string extension, int isign = 1);

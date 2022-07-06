@@ -79,6 +79,115 @@ void fft::_four1(std::vector<double> &data, unsigned long &nn, int isign, bool F
 	}
 }
 
+void fft::_twofft(std::vector<double>& data1, std::vector<double>& data2, std::vector<double>& fft1, std::vector<double>& fft2, unsigned long n)
+{
+	// Given two real input arrays data1[0..n-1] and data2[0..n-1], this routine calls four1
+	// and returns two complex output arrays, fft1[0..2n-1] and fft2[0..2n-1], each of complex
+	// length n, i.e. real length 2*n, which contain the discrete Fourier Transforms of the respective data
+	// n MUST be an integer power of 2
+
+	try {
+		if (!data1.empty() && !data2.empty()) {
+
+			// check that the input array sizes are a POT
+			if (!useful_funcs::is_POT(n)) {
+
+				unsigned long n_orig = n; // store the original length in case you need to resize each array
+
+				bool CMPLX_ARR = false; 				
+
+				pad_data(data1, n, CMPLX_ARR); n = n_orig;
+
+				pad_data(data2, n, CMPLX_ARR); n = n_orig;
+
+				CMPLX_ARR = true; 
+
+				pad_data(fft1, n, CMPLX_ARR); n = n_orig;
+
+				pad_data(fft2, n, CMPLX_ARR); // n should now be POT
+			}
+
+			// check the length of each array
+			bool c0 = useful_funcs::is_POT(n); 
+			bool c1 = data1.size() == n;
+			bool c2 = data2.size() == n;
+			bool c3 = fft1.size() == 2*n;
+			bool c4 = fft2.size() == 2*n;
+			bool c10 = c0 && c1 && c2 && c3 && c4; 
+
+			if (c10) { // perform twofft calculation
+				twofft(data1, data2, fft1, fft2, n);
+			}
+			else {
+				std::string reason;
+				reason = "Error: void fft::_twofft(std::vector<double>& data1, std::vector<double>& data2, std::vector<double>& fft1, std::vector<double>& fft2, unsigned long n)\n";
+				reason += "Input arrays do not have the correct dimensions\n";
+				throw std::invalid_argument(reason);
+			}
+		}
+		else {
+			std::string reason;
+			reason = "Error: void fft::_twofft(std::vector<double>& data1, std::vector<double>& data2, std::vector<double>& fft1, std::vector<double>& fft2, unsigned long n)\n";
+			reason += "Input array is empty\n";
+			throw std::invalid_argument(reason);
+		}
+	}
+	catch (std::invalid_argument& e) {
+		useful_funcs::exit_failure_output(e.what());
+		exit(EXIT_FAILURE);
+	}
+}
+
+void fft::_realft(std::vector<double>& data, unsigned long n, int isign)
+{
+	// Calculates the Fourier transform of a set of n real-valued data points
+	// Replaces this data, stored in data[0..n-1], by the positive frequency half of its complex Fourier transform
+	// The real valued first and last components of the complex transform are returned as elements
+	// data[0] and data[1] respectively.
+	// This routine also calculates the inverse transform of a complex data array if it is the transform of real 
+	// data, result in this case must be multiplied by 2/n
+	// n MUST be an integer power of 2
+
+	try {
+		if (!data.empty()) {
+			bool CMPLX_ARR = false;
+
+			pad_data(data, n, CMPLX_ARR);
+
+			bool c1 = useful_funcs::is_POT(n); 
+			bool c2 = data.size() == n; 
+			bool c3 = abs(isign) == 1; 
+			bool c10 = c1 && c2 && c3; 
+
+			if (c10) {
+				realft(data, n, isign); 
+
+				// scale by 2/N in the case of an inverse FT
+				if (isign == -1) {
+					double scal = 2.0 / n;
+					for (size_t i = 0; i < data.size(); i++) data[i] *= scal;
+				}
+			}
+			else {
+				std::string reason;
+				reason = "Error: void fft::_realft(std::vector<double>& data, unsigned long n, int isign)\n";
+				reason += "Input arrays do not have the correct dimensions\n";
+				throw std::invalid_argument(reason);
+			}
+		}
+		else {
+			std::string reason;
+			reason = "Error: void fft::_realft(std::vector<double>& data, unsigned long n, int isign)\n";
+			reason += "Input array is empty\n";
+			throw std::invalid_argument(reason);
+		}
+	}
+	catch (std::invalid_argument& e) {
+		useful_funcs::exit_failure_output(e.what());
+		exit(EXIT_FAILURE);
+	}
+}
+
 void fft::output_data(std::vector<double> data, double smpl_spac, std::string& filename, std::string extension, int isign)
 {
 	// Output the full FFT spectrum at positive and negative frequency components
@@ -118,7 +227,7 @@ void fft::output_data(std::vector<double> data, double smpl_spac, std::string& f
 				}
 
 				// output positive frequency FFT data in the form real, imag, abs-value, phase
-				for (size_t i = 0; i < N_smpls; i += 2) {
+				for (size_t i = 0; i < (size_t)(N_smpls); i += 2) {
 					write << std::setprecision(10) << data[i] << " , " << data[i + 1] << " , " << template_funcs::Pythag(data[i], data[i + 1]) << " , " << atan2(data[i + 1], data[i]) << "\n";
 				}
 
@@ -231,27 +340,29 @@ void fft::output_pos_data(std::vector<double> data, double smpl_spac, std::strin
 				// Frequency spacing in positive frequency space must be delta_fr = f_end / N_pos_fr = 1/(2 N_pos_fr smpl_spac)
 				// Frequency spacing over whole range will be given by delta_fr = 2 f_end / N_tot = 1/(N_tot smpl_spac) = 1/(2 N_pos_fr smpl_spac) since N_tot = 2 N_pos_fr
 
-				int N_pos_fr = data.size() / 4; // this may have been re-sized, so use this value instead of the one that was input
+				int N_pos_fr = data.size() / 2; // After realFFT signal comprises data.size() / 2 complex-valued data points
 				std::vector<double> fr_vals(N_pos_fr, 0.0);
 
 				create_pos_freq_values(N_pos_fr, smpl_spac, fr_vals, true); // compute the frequency space values
 
 				// filename for frequency data
-				std::string fr_file = filename + "_Frq_data" + extension;
+				std::string fr_file = filename + "_Pos_Frq_data" + extension;
 
 				vecut::write_into_file(fr_file, fr_vals);
 
 				// output the positive frequency components of the computed FFT
 
-				std::string fft_file = filename + "_FFT_data" + extension; // filename for FFT data
+				std::string fft_file = filename + "_Pos_FFT_data" + extension; // filename for FFT data
 
 				std::ofstream write(fft_file, std::ios_base::out, std::ios_base::trunc);
 
 				if (write.is_open()) {
 
 					// output positive frequency FFT data in the form real, imag, abs-value, phase
-					for (size_t i = 0; i < data.size() / 2; i += 2) {
+					int ii = 0; 
+					for (size_t i = 0; i < data.size(); i += 2) {
 						write << std::setprecision(10) << data[i] << " , "<< data[i+1]<<" , " << template_funcs::Pythag(data[i], data[i + 1]) << " , " << atan2(data[i + 1], data[i]) << "\n";
+						ii = i; 
 					}
 
 					write.close();
@@ -481,8 +592,8 @@ void fft::four1(std::vector<double> &data, unsigned long nn, int isign)
 
 void fft::twofft(std::vector<double>& data1, std::vector<double>& data2, std::vector<double>& fft1, std::vector<double>& fft2, unsigned long n)
 {
-	// Given two real input arrays data1[1..n] and data2[1..n], this routine calls four1
-	// ans returns two complex output arrays, fft1[1..2n] and fft2[1..2n], each of complex
+	// Given two real input arrays data1[0..n-1] and data2[0..n-1], this routine calls four1
+	// and returns two complex output arrays, fft1[0..2n-1] and fft2[0..2n-1], each of complex
 	// length n, i.e. real length 2*n, which contain the discrete Fourier Transforms of the respective data
 	// n MUST be an integer power of 2
 
@@ -490,19 +601,26 @@ void fft::twofft(std::vector<double>& data1, std::vector<double>& data2, std::ve
 	double rep, rem, aip, aim;
 
 	nn3 = 1 + (nn2 = 2 + n + n);
-	for (j = 0, jj = 1; j < n; j++, jj += 2) {
-		fft1[jj - 1] = data1[j];
+	nn3--; nn2--; 
+
+	for (j = 0, jj = 1; j < n; j++, jj += 2) { // Pack the two real arrays into one complex array
+		fft1[jj - 1] = data1[j]; 
 		fft1[jj] = data2[j];
 	}
-	four1(fft1, n, 1);
+
+	four1(fft1, n, 1); // Transform the complex array
 	fft2[0] = fft1[1];
 	fft1[1] = fft2[1] = 0.0;
-	for (j = 2; j < n + 1; j += 2) {
+	
+	std::cout << "nn2: " << nn2 << " , nn3" << nn3 << "\n"; 
+	std::cout << "Indices: \n";
+	for (j = 3; j <= n + 1; j += 2) { // Use symmetries to separate the two transforms
+		std::cout << "j: " << j << " , nn2-j: " << nn2 - j << " , j+1: " << j + 1 << " , nn3-j: " << nn3 - j << "\n"; 
 		rep = 0.5 * (fft1[j] + fft1[nn2 - j]);
 		rem = 0.5 * (fft1[j] - fft1[nn2 - j]);
 		aip = 0.5 * (fft1[j + 1] + fft1[nn3 - j]);
 		aim = 0.5 * (fft1[j + 1] - fft1[nn3 - j]);
-		fft1[j] = rep;
+		fft1[j] = rep; // Ship them out in two complex arrays
 		fft1[j + 1] = aim;
 		fft1[nn2 - j] = rep;
 		fft1[nn3 - j] = -aim;
@@ -516,54 +634,58 @@ void fft::twofft(std::vector<double>& data1, std::vector<double>& data2, std::ve
 void fft::realft(std::vector<double>& data, unsigned long n, int isign)
 {
 	// Calculates the Fourier transform of a set of n real-valued data points
-	// Replaces this data, stored in data[1..n], by the positive frequency half of its complex Fourier transform
+	// Replaces this data, stored in data[0..n-1], by the positive frequency half of its complex Fourier transform
 	// The real valued first and last components of the complex transform are returned as elements
-	// data[1] and data[2] respectively.
+	// data[0] and data[1] respectively.
 	// This routine also calculates the inverse transform of a complex data array if it is the transform of real 
 	// data, result in this case must be multiplied by 2/n
 	// n MUST be an integer power of 2
 
-	unsigned long i, i1, i2, i3, i4, np3;
+	unsigned long i, i1, i2, i3, i4;
 	double c1 = 0.5, c2, h1r, h1i, h2r, h2i;
 	double wr, wi, wpr, wpi, wtemp, theta;
 
 	//theta=3.141592653589793/(double) (n>>1);
 	theta = PI / (double)(n >> 1); // n>>1 => n -> n/2
+	// Initialize the recurrence
 	if (isign == 1) {
 		c2 = -0.5;
-		four1(data, n >> 1, 1); // n>>1 => n -> n/2
+		four1(data, n >> 1, 1); // The forward transform is here
 	}
 	else {
-		c2 = 0.5;
+		c2 = 0.5; // Otherwise set up for an inverse transform
 		theta = -theta;
 	}
+
 	wtemp = sin(0.5 * theta);
 	wpr = -2.0 * wtemp * wtemp;
 	wpi = sin(theta);
 	wr = 1.0 + wpr;
 	wi = wpi;
-	np3 = n + 3;
-	for (i = 1; i < (n >> 2); i++) { // n>>2 => n -> n/4
-		i4 = 1 + (i3 = np3 - (i2 = 1 + (i1 = i + i - 1)));
-		h1r = c1 * (data[i1] + data[i3]);
+	//np3 = n + 3;
+	for (i = 1; i < (n >> 2); i++) { // n>>2 => n -> n/4, Case i=1 done separately below
+		//i4 = 1 + (i3 = np3 - (i2 = 1 + (i1 = i + i - 1)));
+		i2 = 1 + (i1 = i + 1); 
+		i4 = 1 + (i3 = n - i1); 
+		h1r = c1 * (data[i1] + data[i3]); // The two separate transforms are separated out of data
 		h1i = c1 * (data[i2] - data[i4]);
 		h2r = -c2 * (data[i2] + data[i4]);
 		h2i = c2 * (data[i1] - data[i3]);
-		data[i1] = h1r + wr * h2r - wi * h2i;
+		data[i1] = h1r + wr * h2r - wi * h2i; // Here they are recombined to form the true transform of the original real data
 		data[i2] = h1i + wr * h2i + wi * h2r;
 		data[i3] = h1r - wr * h2r + wi * h2i;
 		data[i4] = -h1i + wr * h2i + wi * h2r;
-		wr = (wtemp = wr) * wpr - wi * wpi + wr;
+		wr = (wtemp = wr) * wpr - wi * wpi + wr; // The recurrence
 		wi = wi * wpr + wtemp * wpi + wi;
 	}
 	if (isign == 1) {
-		data[0] = (h1r = data[0]) + data[1];
+		data[0] = (h1r = data[0]) + data[1]; // Squeeze the first and last data together to get them all within the original array
 		data[1] = h1r - data[1];
 	}
 	else {
 		data[0] = c1 * ((h1r = data[0]) + data[1]);
 		data[1] = c1 * (h1r - data[1]);
-		four1(data, n >> 1, -1); // n>>1 => n -> n/2
+		four1(data, n >> 1, -1); // n>>1 => n -> n/2, This is the inverse transform for the case isign = -1
 	}
 }
 
@@ -591,7 +713,7 @@ void fft::create_pos_freq_values(int &N_pos_fr, double &smpl_spac, std::vector<d
 			//delta_fr = (fr_final - fr0) / (static_cast<double>(N_fr - 1));
 
 			// this is the definition supplied in NRinC
-			double fr0 = 0.0, delta_fr = 1.0 / (2.0 * N_pos_fr * smpl_spac), fr_final = 1.0/(2.0*smpl_spac);
+			double fr0 = 0.0, delta_fr = 1.0 / ( 2.0 * N_pos_fr * smpl_spac), fr_final = 1.0/(2.0*smpl_spac);
 			//delta_fr = (fr_final - fr0) / (static_cast<double>(N_pos_fr));
 
 			if(loud){

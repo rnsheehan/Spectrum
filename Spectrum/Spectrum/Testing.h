@@ -18,6 +18,10 @@ namespace testing {
 
 	void inverse_FFT_test();
 
+	void real_ft_test(); 
+
+	void two_ft_test(); 
+
 	void sine_wave(int Nsmpls, double Lt, double f1, double f2);
 
 	void cosine_wave(int Nsmpls, double Lt, double f1, double f2); 
@@ -27,6 +31,8 @@ namespace testing {
 	void exponential(int Nsmpls, double Lt, double centre, double decay);
 
 	void tophat(int Nsmpls, double Lt, double centre, double width); 
+
+	void tophat_alt(int Nsmpls, double Lt, double centre, double width);
 
 	void heaviside(int Nsmpls, double Lt, double centre);
 	

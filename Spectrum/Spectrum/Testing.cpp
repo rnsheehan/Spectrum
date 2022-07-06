@@ -200,16 +200,16 @@ void testing::example_calculations()
 	// R. Sheehan 4 - 7 - 2022
 
 	try {
-		std::string the_dir = "Examples"; 
-		useful_funcs::set_directory(the_dir); 
+		std::string the_dir = "c:\\users\\robertsheehan\\Research\\Notes\\FFT\\Examples";
+		useful_funcs::set_directory(the_dir);
 
 		// sine wave example
-		int Nsmpls = 10000; 
-		double Lx = 10, f1 = 5, f2 = 2; 
+		int Nsmpls = 4096; 
+		double Lx = 10, f1 = 7, f2 = 25; 
 		
-		testing::heaviside(Nsmpls, Lx, f1);
+		testing::sine_wave(Nsmpls, Lx, f1, f2);
 
-		std::string func_str = "Heaviside"; 
+		std::string func_str = "Cosine_Wave"; 
 		std::string timefile = func_str + "_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
 		std::string spctfile = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
 
@@ -247,11 +247,11 @@ void testing::inverse_FFT_test()
 		useful_funcs::set_directory(the_dir);
 
 		// sine wave example
-		int Nsmpls = 10000;
+		int Nsmpls = 4096;
 		
 		// I think the problems with the Signum and the Top-Hat functions are to do with the no. samples and the padding
 
-		std::string func_str = "Signum";
+		std::string func_str = "Cosine_Wave";
 		std::string timefile = func_str + "_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
 		std::string spctfile = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
 
@@ -316,6 +316,107 @@ void testing::inverse_FFT_test()
 		inverse_calc._four1(fftvals, nn, isign, FMT_DATA);
 
 		inverse_calc.output_data(fftvals, delta_f, ift_file, dottxt, isign);
+	}
+	catch (std::invalid_argument& e) {
+		useful_funcs::exit_failure_output(e.what());
+		exit(EXIT_FAILURE);
+	}
+}
+
+void testing::real_ft_test()
+{
+	// test the operation of the real FT code
+	// R. Sheehan 6 - 7 - 2022
+
+	try {
+		std::string the_dir = "c:\\users\\robertsheehan\\Research\\Notes\\FFT\\Examples";
+		useful_funcs::set_directory(the_dir);
+
+		// sine wave example
+		int Nsmpls = 4096;
+
+		std::string func_str = "Heaviside";
+		std::string timefile = func_str + "_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
+		std::string spctfile = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
+
+		std::vector<double> timedata; int ntimes = 0;
+		std::vector<double> spctdata; int nspct = 0;
+
+		vecut::read_into_vector(timefile, timedata, ntimes);
+
+		vecut::read_into_vector(spctfile, spctdata, nspct);
+
+		double delta_t = timedata[1] - timedata[0];
+
+		unsigned long nn = nspct;
+
+		int isign = +1;
+
+		fft calc;
+
+		calc._realft(spctdata, nn, isign); 
+
+		calc.output_pos_data(spctdata, delta_t, spctfile, dottxt);
+
+		std::cout << "Test\n"; 
+	}
+	catch (std::invalid_argument& e) {
+		useful_funcs::exit_failure_output(e.what());
+		exit(EXIT_FAILURE);
+	}
+}
+
+void testing::two_ft_test()
+{
+	// test the operation of the two FT code
+	// R. Sheehan 6 - 7 - 2022
+
+	try {
+		std::string the_dir = "c:\\users\\robertsheehan\\Research\\Notes\\FFT\\Examples";
+		useful_funcs::set_directory(the_dir);
+
+		// sine wave example
+		int Nsmpls = 4096;
+
+		std::string func_str = "Sine_Wave";
+		std::string timefile1 = func_str + "_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
+		std::string spctfile1 = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
+
+		std::vector<double> timedata1; int ntimes1 = 0;
+		std::vector<double> spctdata1; int nspct1 = 0;
+
+		vecut::read_into_vector(timefile1, timedata1, ntimes1);
+
+		vecut::read_into_vector(spctfile1, spctdata1, nspct1);
+
+		func_str = "Cosine_Wave";
+		std::string timefile2 = func_str + "_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
+		std::string spctfile2 = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
+
+		std::vector<double> timedata2; int ntimes2 = 0;
+		std::vector<double> spctdata2; int nspct2 = 0;
+
+		vecut::read_into_vector(timefile2, timedata2, ntimes2);
+
+		vecut::read_into_vector(spctfile2, spctdata2, nspct2);
+
+		double delta_t = timedata1[1] - timedata1[0];
+
+		unsigned long nn = nspct1;
+
+		int isign = +1;
+
+		std::vector<double> fft1(2*nspct1, 0.0); 
+
+		std::vector<double> fft2(2*nspct2, 0.0); 
+
+		fft calc; 
+
+		calc._twofft(spctdata1, spctdata2, fft1, fft2, nspct1); 
+
+		calc.output_data(fft1, delta_t, spctfile1, dottxt); 
+
+		calc.output_data(fft2, delta_t, spctfile2, dottxt); 
 	}
 	catch (std::invalid_argument& e) {
 		useful_funcs::exit_failure_output(e.what());
@@ -552,6 +653,55 @@ void testing::tophat(int Nsmpls, double Lt, double centre, double width)
 
 				for (int i = 0; i < Nsmpls; i++) {
 					double val = abs(t0-centre) <= width ? 1.0 : -1.0;
+					write1 << std::setprecision(10) << t0 << "\n";
+					write2 << std::setprecision(10) << val << "\n";
+					t0 += delta_t;
+				}
+
+				write1.close(); write2.close();
+			}
+		}
+		else {
+			std::string reason;
+			reason = "Error: void testing::tophat(int Nsmpls, double Lt, double centre, double width)\n";
+
+			throw std::invalid_argument(reason);
+		}
+	}
+	catch (std::invalid_argument& e) {
+		useful_funcs::exit_failure_output(e.what());
+		exit(EXIT_FAILURE);
+	}
+}
+
+void testing::tophat_alt(int Nsmpls, double Lt, double centre, double width)
+{
+	// compute the trace of a top-hat function over fixed time and no. samples
+	// TH(x) = 1 for |x-c| < width, -1 ow
+	// R. Sheehan 4 - 7 - 2022
+
+	try {
+
+		bool c1 = Nsmpls > 0 ? true : false;
+		bool c2 = Lt > 0 ? true : false;
+		bool c3 = width > 0 && centre > 0 ? true : false;
+		bool c10 = c1 && c2 && c3;
+
+		if (c10) {
+			std::string time_file = "Tophat_Alt_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for exponential-wave data
+
+			std::string data_file = "Tophat_Alt_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for exponential-wave data
+
+			std::ofstream write1(time_file, std::ios_base::out, std::ios_base::trunc);
+
+			std::ofstream write2(data_file, std::ios_base::out, std::ios_base::trunc);
+
+			if (write1.is_open() && write2.is_open()) {
+
+				double t0 = 0, delta_t = Lt / Nsmpls;
+
+				for (int i = 0; i < Nsmpls; i++) {
+					double val = abs(t0 - centre) <= width ? 1.0 : 0.0;
 					write1 << std::setprecision(10) << t0 << "\n";
 					write2 << std::setprecision(10) << val << "\n";
 					t0 += delta_t;
