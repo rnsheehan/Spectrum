@@ -609,6 +609,11 @@ void fft::twofft(std::vector<double>& data1, std::vector<double>& data2, std::ve
 	}
 
 	four1(fft1, n, 1); // Transform the complex array
+
+	// Unpack the FFT in a less clever way, i.e. more obvious way
+	// output of four1 is in wrap-around order, swap around to correct order then separate
+	// real and imaginary values to give both sets of FFT
+
 	fft2[0] = fft1[1];
 	fft1[1] = fft2[1] = 0.0;
 	
