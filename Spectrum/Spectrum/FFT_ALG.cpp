@@ -598,10 +598,7 @@ void fft::twofft(std::vector<double>& data1, std::vector<double>& data2, std::ve
 	// n MUST be an integer power of 2
 
 	unsigned long nn3, nn2, jj, j;
-	double rep, rem, aip, aim;
-
-	nn3 = 1 + (nn2 = 2 + n + n);
-	nn3--; nn2--; 
+	double rep, rem, aip, aim;	
 
 	for (j = 0, jj = 1; j < n; j++, jj += 2) { // Pack the two real arrays into one complex array
 		fft1[jj - 1] = data1[j]; 
@@ -610,30 +607,94 @@ void fft::twofft(std::vector<double>& data1, std::vector<double>& data2, std::ve
 
 	four1(fft1, n, 1); // Transform the complex array
 
-	// Unpack the FFT in a less clever way, i.e. more obvious way
-	// output of four1 is in wrap-around order, swap around to correct order then separate
-	// real and imaginary values to give both sets of FFT
+	// output the computed FFT in wrap-around order
+	//std::string filename = "TwoFFT_WAO.txt"; 	
+	//vecut::write_into_file(filename, fft1); 
+	// output the unwrapped computed FFT 
+	//filename = "TwoFFT_Unwrapped.txt"; 
+	//std::ofstream write(filename, std::ios_base::out, std::ios_base::trunc);
+	//if (write.is_open()) {
+	//	
+	//	// output neg freq cpts
+	//	for (size_t i = n; i < 2*n; i+=2) {
+	//		write << std::setprecision(10) << fft1[i] << " , " << fft1[i + 1] << "\n"; 
+	//	}
+	//	// output pos freq cpts
+	//	for (size_t i = 0; i < 2*n; i += 2) {
+	//		write << std::setprecision(10) << fft1[i] << " , " << fft1[i + 1] << "\n";
+	//	}
+	//	write.close(); 
+	//}
+	// output the unwrapped computed FFT 
+	//filename = "TwoFFT_Unwrapped_Neg.txt";
+	//write.open(filename, std::ios_base::out, std::ios_base::trunc);
+	//if (write.is_open()) {
+	//	// output neg freq cpts
+	//	for (size_t i = n; i < 2 * n; i += 2) {
+	//		write << std::setprecision(10) << fft1[i] << " , " << fft1[i + 1] << "\n";
+	//	}
+	//	write.close();
+	//}
+	// output the unwrapped computed FFT 
+	//filename = "TwoFFT_Unwrapped_Pos.txt";
+	//write.open(filename, std::ios_base::out, std::ios_base::trunc);
+	//if (write.is_open()) {
+	//	// output pos freq cpts
+	//	for (size_t i = 0; i < n; i += 2) {
+	//		write << std::setprecision(10) << fft1[i] << " , " << fft1[i + 1] << "\n";
+	//	}
+	//	write.close();
+	//}
+	// Does F_{N-n} = F_{n}? 
+	//filename = "TwoFFT_Equality.txt";
+	//write.open(filename, std::ios_base::out, std::ios_base::trunc);
+	//if (write.is_open()) {
+	//	for (size_t i = 3; i < n; i++) {
+	//		write << std::setprecision(10) << fft1[i] << " , " << fft1[2*n + 2 - i] <<"\n";
+	//	}
+	//	write.close();
+	//}
 
-	fft2[0] = fft1[1];
-	fft1[1] = fft2[1] = 0.0;
-	
-	std::cout << "nn2: " << nn2 << " , nn3" << nn3 << "\n"; 
-	std::cout << "Indices: \n";
-	for (j = 3; j <= n + 1; j += 2) { // Use symmetries to separate the two transforms
-		std::cout << "j: " << j << " , nn2-j: " << nn2 - j << " , j+1: " << j + 1 << " , nn3-j: " << nn3 - j << "\n"; 
-		rep = 0.5 * (fft1[j] + fft1[nn2 - j]);
-		rem = 0.5 * (fft1[j] - fft1[nn2 - j]);
-		aip = 0.5 * (fft1[j + 1] + fft1[nn3 - j]);
-		aim = 0.5 * (fft1[j + 1] - fft1[nn3 - j]);
-		fft1[j] = rep; // Ship them out in two complex arrays
-		fft1[j + 1] = aim;
-		fft1[nn2 - j] = rep;
-		fft1[nn3 - j] = -aim;
-		fft2[j] = aip;
-		fft2[j + 1] = -rem;
-		fft2[nn2 - j] = aip;
-		fft2[nn3 - j] = rem;
+	// output according to NRinC formula
+	// it works but is it worth the hassle? 
+	// Don't think so. 
+	// R. Sheehan 7 - 7 - 2022
+	std::string filename = "TwoFFT_Separated.txt";
+	std::ofstream write; 
+	write.open(filename, std::ios_base::out, std::ios_base::trunc);
+
+	if (write.is_open()) {
+		
+		int size = n; 
+		double F, G; 
+
+		for (size_t i = 3; i < n; i++) {
+			F = 0.5 * (fft1[i] + fft1[2 * n + 2 - i]);
+			G = 0.5 * (fft1[i] - fft1[2 * n + 2 - i]);
+			write << std::setprecision(10) << F << " , " << G << "\n";
+		}
+
+		write.close(); 
 	}
+
+	//fft2[0] = fft1[1];
+	//fft1[1] = fft2[1] = 0.0;
+	//
+	//nn3 = 1 + (nn2 = (2*n) + 2);
+	//for (j = 3; j < n; j += 2) { // Use symmetries to separate the two transforms
+	//	rep = 0.5 * (fft1[j] + fft1[nn2 - j]);
+	//	rem = 0.5 * (fft1[j] - fft1[nn2 - j]);
+	//	//aip = 0.5 * (fft1[j + 1] + fft1[nn3 - j]);
+	//	//aim = 0.5 * (fft1[j + 1] - fft1[nn3 - j]);
+	//	fft1[j] = rep; // Ship them out in two complex arrays
+	//	//fft1[j + 1] = aim;
+	//	fft1[nn2 - j] = rep;
+	//	//fft1[nn3 - j] = -aim;
+	//	//fft2[j] = aip;
+	//	fft2[j + 1] = -rem;
+	//	//fft2[nn2 - j] = aip;
+	//	//fft2[nn3 - j] = rem;
+	//}
 }
 
 void fft::realft(std::vector<double>& data, unsigned long n, int isign)

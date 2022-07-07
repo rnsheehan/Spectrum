@@ -114,6 +114,64 @@ def general_fft_plot():
 		print(ERR_STATEMENT)
 		print(e)
 
+def Single_plot():
+	
+	os.chdir('c:/Users/robertsheehan/Research/Notes/FFT/Examples/')
+
+	#spct_file = "TwoFFT_WAO.txt"
+	#spct_file = "TwoFFT_Unwrapped_Neg.txt"
+	spct_file = "TwoFFT_Separated.txt"
+	#spct_file = "TwoFFT_Equality.txt"
+
+
+	# plot the FFT in wrap-around format
+	spct_data = np.loadtxt(spct_file, delimiter = ',', unpack = True)
+	#time_data = np.arange(0, len(spct_data[0]), 1)
+	time_data = []
+	df = 0.1; f0=0.1; 
+	for i in range(0, len(spct_data[0]), 1):
+		time_data.append(f0)
+		f0 = f0 + 0.5*df
+
+	args = Plotting.plot_arg_single()
+	args.loud = True
+	args.x_label = 'x-axis'
+	args.y_label = 'y-axis'
+	args.marker = 'r-'
+	args.fig_name = 'F'
+	
+	Plotting.plot_single_curve(time_data, spct_data[0], args)
+
+	args.marker = 'g-'
+	args.fig_name = 'G'
+	
+	Plotting.plot_single_curve(time_data, spct_data[1], args)
+
+	#args.marker = 'c-'
+	#args.fig_name = 'Fn+FN-n'	
+	#Plotting.plot_single_curve(time_data, spct_data[0] - spct_data[1], args)
+
+	#args = Plotting.plot_arg_multiple()
+	#args.loud = True
+	#args.x_label = 'x-axis'
+	#args.y_label = 'y-axis'
+	##args.mrk_list = ['r-','g-','c-','m-']
+	##args.crv_lab_list = ['0','1','2','3']
+	#args.mrk_list = ['r-']
+	#args.crv_lab_list = ['0']
+	##args.marker = 'r-'
+	##args.fig_name = 'Signal_FFT_Wrap_Around'
+	
+	#hv_data = []; 
+	#hv_data.append([time_data, spct_data[0]])
+	##hv_data.append([time_data, spct_data[1]])
+	##hv_data.append([time_data, spct_data[2]])
+	##hv_data.append([time_data, spct_data[3]])
+	
+	#Plotting.plot_multiple_curves(hv_data, args)
+
+	del time_data; del spct_data; 
+
 def laser_fft_plot():
 	# make a plot of the FFT of a laser optical spectrum
 	# deduce the laser cavity length from the FFT
@@ -201,6 +259,8 @@ def laser_fft_plot():
 		print(e)
 
 # method calls
-general_fft_plot()
+#general_fft_plot()
+
+Single_plot()
 
 #laser_fft_plot()

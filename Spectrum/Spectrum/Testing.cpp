@@ -205,11 +205,11 @@ void testing::example_calculations()
 
 		// sine wave example
 		int Nsmpls = 4096; 
-		double Lx = 10, f1 = 7, f2 = 25; 
+		double Lx = 10, f1 = 12, f2 = 33; 
 		
 		testing::sine_wave(Nsmpls, Lx, f1, f2);
 
-		std::string func_str = "Cosine_Wave"; 
+		std::string func_str = "Sine_Wave"; 
 		std::string timefile = func_str + "_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
 		std::string spctfile = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
 
@@ -229,6 +229,8 @@ void testing::example_calculations()
 		calc._four1(spctdata, nn); // compute the FFT of spctdata
 
 		calc.output_data(spctdata, delta_t, spctfile, dottxt);
+
+		spctdata.clear(); timedata.clear();
 	}
 	catch (std::invalid_argument& e) {
 		useful_funcs::exit_failure_output(e.what());
@@ -251,7 +253,7 @@ void testing::inverse_FFT_test()
 		
 		// I think the problems with the Signum and the Top-Hat functions are to do with the no. samples and the padding
 
-		std::string func_str = "Cosine_Wave";
+		std::string func_str = "Sine_Wave";
 		std::string timefile = func_str + "_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
 		std::string spctfile = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
 
@@ -316,6 +318,8 @@ void testing::inverse_FFT_test()
 		inverse_calc._four1(fftvals, nn, isign, FMT_DATA);
 
 		inverse_calc.output_data(fftvals, delta_f, ift_file, dottxt, isign);
+
+		spctdata.clear(); timedata.clear(); fftvals.clear(); frq_data.clear(); 
 	}
 	catch (std::invalid_argument& e) {
 		useful_funcs::exit_failure_output(e.what());
@@ -358,7 +362,7 @@ void testing::real_ft_test()
 
 		calc.output_pos_data(spctdata, delta_t, spctfile, dottxt);
 
-		std::cout << "Test\n"; 
+		spctdata.clear(); timedata.clear(); 
 	}
 	catch (std::invalid_argument& e) {
 		useful_funcs::exit_failure_output(e.what());
@@ -389,7 +393,7 @@ void testing::two_ft_test()
 
 		vecut::read_into_vector(spctfile1, spctdata1, nspct1);
 
-		func_str = "Cosine_Wave";
+		func_str = "Exponential";
 		std::string timefile2 = func_str + "_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
 		std::string spctfile2 = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
 
@@ -414,9 +418,11 @@ void testing::two_ft_test()
 
 		calc._twofft(spctdata1, spctdata2, fft1, fft2, nspct1); 
 
-		calc.output_data(fft1, delta_t, spctfile1, dottxt); 
+		//calc.output_data(fft1, delta_t, spctfile1, dottxt); 
 
-		calc.output_data(fft2, delta_t, spctfile2, dottxt); 
+		//calc.output_data(fft2, delta_t, spctfile2, dottxt); 
+
+		spctdata1.clear(); spctdata2.clear(); fft1.clear(); fft2.clear(); timedata1.clear(); timedata2.clear(); 
 	}
 	catch (std::invalid_argument& e) {
 		useful_funcs::exit_failure_output(e.what());
