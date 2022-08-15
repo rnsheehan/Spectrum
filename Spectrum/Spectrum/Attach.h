@@ -51,6 +51,7 @@ static const std::string dotcsv= ".csv";
 #include "Useful.h"
 #include "Vector_Utils.h"
 #include "FFT_ALG.h"
+#include "Convolutions.h"
 #include "Testing.h"
 
 #endif

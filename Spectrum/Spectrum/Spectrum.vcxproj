@@ -116,6 +116,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Attach.h" />
+    <ClInclude Include="Convolutions.h" />
     <ClInclude Include="FFT_ALG.h" />
     <ClInclude Include="Templates.h" />
     <ClInclude Include="Testing.h" />
@@ -123,6 +124,7 @@
     <ClInclude Include="Vector_Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Convolutions.cpp" />
     <ClCompile Include="FFT_ALG.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Testing.cpp" />

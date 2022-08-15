@@ -14,6 +14,8 @@ public:
 
 	void _realft(std::vector<double>& data, unsigned long n, int isign);
 
+	void pad_data(std::vector<double>& data, unsigned long& nn, bool CMPLX_ARR);
+
 	void output_pos_data(std::vector<double> data, double smpl_spac, std::string &filename, std::string extension, bool output_type = STNDRD);
 
 	void output_data(std::vector<double> data, double smpl_spac, std::string &filename, std::string extension, int isign = 1);
@@ -29,9 +31,7 @@ private:
 
 	void realft(std::vector<double> &data, unsigned long n, int isign);
 
-	void format_four1(std::vector<double> &data);
-
-	void pad_data(std::vector<double> &data, unsigned long &nn, bool CMPLX_ARR);
+	void format_four1(std::vector<double> &data);	
 
 	void create_freq_values(int & N_smpls, double &smpl_spac, std::vector<double> &fr_vals, int isign = 1, bool loud = false);
 

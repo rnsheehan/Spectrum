@@ -597,8 +597,9 @@ void fft::twofft(std::vector<double>& data1, std::vector<double>& data2, std::ve
 	// length n, i.e. real length 2*n, which contain the discrete Fourier Transforms of the respective data
 	// n MUST be an integer power of 2
 
-	unsigned long nn3, nn2, jj, j;
-	double rep, rem, aip, aim;	
+	unsigned long jj, j;
+	//unsigned long nn3, nn2, jj, j;
+	//double rep, rem, aip, aim;	
 
 	for (j = 0, jj = 1; j < n; j++, jj += 2) { // Pack the two real arrays into one complex array
 		fft1[jj - 1] = data1[j]; 
