@@ -32,7 +32,7 @@ def general_fft_plot():
 		os.chdir('c:/Users/robertsheehan/Research/Notes/FFT/Examples/')
 
 		Nsmpls = 4096
-		wavename = 'Sine_Wave'
+		wavename = 'Unequal_Ampl_Sine_Wave'
 
 		time_file = "%(v2)s_Time_Nsmpls_%(v1)d.txt"%{"v2":wavename, "v1":Nsmpls}		
 		spct_file = "%(v2)s_Data_Nsmpls_%(v1)d.txt"%{"v2":wavename, "v1":Nsmpls}
@@ -86,7 +86,7 @@ def general_fft_plot():
 			# need to scale plots according to max{Re{FFT}} or max{Im{FFT}}
 			max_re = np.max(spct_data[0]); max_im = np.max(spct_data[1]); 
 			max_val = max(max_re, max_im)
-			max_val = np.max(spct_data[2])
+			#max_val = np.max(spct_data[2])
 
 			hv_data = []; marks = []; labs = []; 
 			hv_data.append([frq_data, spct_data[0] / max_val ]); marks.append(Plotting.labs_lins[0]); labs.append('Re{FFT}')
@@ -259,8 +259,8 @@ def laser_fft_plot():
 		print(e)
 
 # method calls
-#general_fft_plot()
+general_fft_plot()
 
-Single_plot()
+#Single_plot()
 
 #laser_fft_plot()

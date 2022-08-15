@@ -209,9 +209,9 @@ void testing::example_calculations()
 		
 		testing::sine_wave(Nsmpls, Lx, f1, f2);
 
-		std::string func_str = "Sine_Wave"; 
-		std::string timefile = func_str + "_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
-		std::string spctfile = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
+		std::string func_str = "Sine_Wave"; // Unequal_Ampl_Sine_Wave 
+		std::string timefile = func_str + "_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave time data
+		std::string spctfile = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave voltage data
 
 		std::vector<double> timedata; int ntimes = 0;
 		std::vector<double> spctdata; int nspct = 0;
@@ -231,6 +231,25 @@ void testing::example_calculations()
 		calc.output_data(spctdata, delta_t, spctfile, dottxt);
 
 		spctdata.clear(); timedata.clear();
+
+		// now perform the same calculation using realft and see what the output looks like
+		//func_str = "Unequal_Ampl_Sine_Wave";
+		//timefile = func_str + "_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave time data
+		//spctfile = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave voltage data
+
+		//vecut::read_into_vector(timefile, timedata, ntimes);
+
+		//vecut::read_into_vector(spctfile, spctdata, nspct);
+
+		//delta_t = timedata[1] - timedata[0];
+
+		//nn = nspct;
+
+		//calc._realft(spctdata, nn, true); 
+
+		//calc.output_pos_data(spctdata, delta_t, spctfile, dottxt); 
+
+		//spctdata.clear(); timedata.clear();
 	}
 	catch (std::invalid_argument& e) {
 		useful_funcs::exit_failure_output(e.what());

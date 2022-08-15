@@ -190,7 +190,8 @@ void fft::_realft(std::vector<double>& data, unsigned long n, int isign)
 
 void fft::output_data(std::vector<double> data, double smpl_spac, std::string& filename, std::string extension, int isign)
 {
-	// Output the full FFT spectrum at positive and negative frequency components
+	// Output the full FFT spectrum at positive and negative frequency components 
+	// FFT data in the form real, imag, abs-value, phase
 	// R. Sheehan 4 - 7 - 2022
 
 	try {
@@ -242,7 +243,6 @@ void fft::output_data(std::vector<double> data, double smpl_spac, std::string& f
 			}
 
 			fr_vals.clear();
-
 		}
 		else {
 			std::string reason;
@@ -294,6 +294,8 @@ void fft::output_wrap_around(std::vector<double> data, std::string& filename, st
 void fft::output_pos_data(std::vector<double> data, double smpl_spac, std::string &filename, std::string extension, bool output_type)
 {
 	// output the computed FFT data to a file
+	// // output positive frequency FFT data in the form real, imag, abs-value, phase
+	// 
 	// How do you handle the position data if the size of the data has been expanded? 
 	// Don't need it because you are working in frequency space. This means that you should output frequency data
 	// for the human readable format. 
@@ -359,10 +361,8 @@ void fft::output_pos_data(std::vector<double> data, double smpl_spac, std::strin
 				if (write.is_open()) {
 
 					// output positive frequency FFT data in the form real, imag, abs-value, phase
-					int ii = 0; 
 					for (size_t i = 0; i < data.size(); i += 2) {
 						write << std::setprecision(10) << data[i] << " , "<< data[i+1]<<" , " << template_funcs::Pythag(data[i], data[i + 1]) << " , " << atan2(data[i + 1], data[i]) << "\n";
-						ii = i; 
 					}
 
 					write.close();
