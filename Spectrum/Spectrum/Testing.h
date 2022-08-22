@@ -4,6 +4,8 @@
 // Declaration of namespace that implements methods to test operation of FFT algorithm
 
 namespace testing {
+	void test_rotate(); 
+
 	void sample_FFT_calculation(); 
 
 	void laser_FFT(); 

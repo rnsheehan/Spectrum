@@ -2,6 +2,58 @@
 #include "Attach.h"
 #endif
 
+void testing::test_rotate()
+{
+	// convert the elements in a vector from wrap-around order to standard order
+	// take elements from positions [size()/2, size()-1] and move them to positions [0, -1 + size()/2]
+	// take elements from positions [0, -1 + size()/2] and move them to positions [size()/2, size()-1]
+	// It would be nice if you could do this in place and it turns out that you can
+	// While looking for a generic function to convert the output of the FFT algorithm from wrap-around to standard ordering
+	// I encountered the std::rotate method
+	// see https://cplusplus.com/reference/algorithm/rotate/ for details
+	// R. Sheehan 22 - 8 - 2022
+
+	bool USE_CUSTOM_ROTATE = true; 
+
+	std::vector<double> myvector;
+
+	// set some values:
+	for (int i = 1; i < 14; ++i) myvector.push_back(i); // 1 2 3 4 5 6 7 8 9 "standard order"
+
+	std::cout << "myvector initially contains:";
+	for (std::vector<double>::iterator it = myvector.begin(); it != myvector.end(); ++it)std::cout << ' ' << *it;
+	std::cout << '\n';
+
+	if (USE_CUSTOM_ROTATE) {
+		vecut::wrap_around_conversion(myvector, false); 
+	}
+	else {
+		std::rotate(myvector.begin(), myvector.begin() + myvector.size() / 2, myvector.end()); // 5 6 7 8 9 1 2 3 4 "wrap-around order"
+	}
+
+	// print out content:
+	std::cout << "myvector after rotation contains:";
+	for (std::vector<double>::iterator it = myvector.begin(); it != myvector.end(); ++it)std::cout << ' ' << *it;
+	std::cout << '\n';
+
+	if (USE_CUSTOM_ROTATE) {
+		vecut::wrap_around_conversion(myvector, true);
+	}
+	else {
+		if ((myvector.size()) % 2 == 0) {
+			std::cout << (myvector.size()) % 2 << "\n";
+			std::rotate(myvector.begin(), myvector.begin() + myvector.size() / 2, myvector.end()); // 1 2 3 4 5 6 7 8 9 "standard order"
+		}
+		else {
+			std::rotate(myvector.begin(), myvector.begin() + (myvector.size() / 2) + 1, myvector.end()); // 1 2 3 4 5 6 7 8 9 "standard order"
+		}
+	}
+
+	std::cout << "myvector after rotation contains:";
+	for (std::vector<double>::iterator it = myvector.begin(); it != myvector.end(); ++it)std::cout << ' ' << *it;
+	std::cout << '\n';
+}
+
 void testing::sample_FFT_calculation()
 {
 	// sample FFT calculations to test operation of FFT object
