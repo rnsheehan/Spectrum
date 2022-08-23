@@ -35,7 +35,7 @@ void convol_deconvol::_convlv(std::vector<double>& data, unsigned long n, std::v
 		if (!useful_funcs::is_POT(n)) {
 			bool CMPLX_ARR = false;
 			unsigned long n_orig = n; // store the original length in case you need to resize each array
-			unsigned long n2 = 2 * n; // store the value of the size of the array ans[0..2n-1]
+			unsigned long n2 = 2 * n; // store the value of the size of the array ans[0..n-1]
 
 			pad_data(data, n, CMPLX_ARR); // data[0..n-1]
 
@@ -73,7 +73,6 @@ void convol_deconvol::_convlv(std::vector<double>& data, unsigned long n, std::v
 		bool c10 = c1 && c2 && c3 && c4 && c5 && c6; 
 
 		if (c10) {
-
 			convlv(data, n, respns, m, isign, ans);
 		}
 		else {
@@ -113,14 +112,8 @@ void convol_deconvol::convlv(std::vector<double>& data, unsigned long n, std::ve
 	// On input isign is +1 for convolution, -1 for deconvolution. 
 
 	// The answer is returned in the first n components of ans. 
-	// However, ans must be supplied in the calling program with dimensions ans[1..2*n], 
-	// for consistency with twofft	
 
 	// n MUST be an integer power of 2. 
-
-	// For response data in input
-	/*cout<<"response data for times t > 0 contained in elements 1 <= i < "<<(m+3)/2<<"\n";
-	cout<<"response data for times t <= 0 contained in elements "<<(m+3)/2<<" <= i <= "<<m<<"\n"; */
 
 	// "I'm a well fed man so I grow up strong. 
 	// I hope you overstand!"
@@ -142,9 +135,9 @@ void convol_deconvol::convlv(std::vector<double>& data, unsigned long n, std::ve
 		}
 
 		// pad with zeros, don't need this since you've tmp is already filled
-		/*for (i = (m + 1) / 2; i < n - (m - 1) / 2; i++) {
+		for (i = (m + 1) / 2; i < n - (m - 1) / 2; i++) {
 			temp[i] = 0.0;
-		}*/
+		}
 
 		for (i = 0; i < n; i++) {
 			ans[i] = data[i];
@@ -152,6 +145,7 @@ void convol_deconvol::convlv(std::vector<double>& data, unsigned long n, std::ve
 
 		// FFT both data sets
 		_realft(ans, n, isign);
+
 		_realft(temp, n, isign);
 
 		no2 = n >> 1; // n02 = n/2

@@ -549,6 +549,8 @@ void testing::convolution_test()
 
 	if (write.is_open()) {
 
+		vecut::wrap_around_conversion(ans); 
+
 		for (size_t i = 0; i < ans.size(); i ++) {
 			write << std::setprecision(10) << ans[i] << "\n";
 		}
