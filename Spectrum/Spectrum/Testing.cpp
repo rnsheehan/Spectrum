@@ -259,9 +259,11 @@ void testing::example_calculations()
 		int Nsmpls = 4096; 
 		double Lx = 10, f1 = 12, f2 = 33; 
 		
-		testing::sine_wave(Nsmpls, Lx, f1, f2);
+		//testing::sine_wave(Nsmpls, Lx, f1, f2);
 
-		std::string func_str = "Sine_Wave"; // Unequal_Ampl_Sine_Wave 
+		testing::gaussian(Nsmpls, Lx, 5, 0.5); 
+
+		std::string func_str = "Gaussian"; // Unequal_Ampl_Sine_Wave 
 		std::string timefile = func_str + "_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave time data
 		std::string spctfile = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave voltage data
 
@@ -324,7 +326,7 @@ void testing::inverse_FFT_test()
 		
 		// I think the problems with the Signum and the Top-Hat functions are to do with the no. samples and the padding
 
-		std::string func_str = "Sine_Wave";
+		std::string func_str = "Gaussian";
 		std::string timefile = func_str + "_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
 		std::string spctfile = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
 
@@ -391,6 +393,7 @@ void testing::inverse_FFT_test()
 		inverse_calc.output_data(fftvals, delta_f, ift_file, dottxt, isign);
 
 		spctdata.clear(); timedata.clear(); fftvals.clear(); frq_data.clear(); 
+
 	}
 	catch (std::invalid_argument& e) {
 		useful_funcs::exit_failure_output(e.what());

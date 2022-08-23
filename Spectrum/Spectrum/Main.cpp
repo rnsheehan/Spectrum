@@ -11,7 +11,7 @@
 
 int main() 
 {
-	testing::test_rotate(); 
+	//testing::test_rotate(); 
 
 	//testing::sample_FFT_calculation(); 
 
@@ -21,7 +21,7 @@ int main()
 
 	//testing::compute_FFT_test(); 
 
-	//testing::example_calculations(); 
+	testing::example_calculations(); 
 
 	//testing::inverse_FFT_test(); 
 

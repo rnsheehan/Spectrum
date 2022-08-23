@@ -30,9 +30,10 @@ def general_fft_plot():
 	
 	try:
 		os.chdir('c:/Users/robertsheehan/Research/Notes/FFT/Examples/')
+		print(os.getcwd())
 
 		Nsmpls = 4096
-		wavename = 'Unequal_Ampl_Sine_Wave'
+		wavename = 'Gaussian'
 
 		time_file = "%(v2)s_Time_Nsmpls_%(v1)d.txt"%{"v2":wavename, "v1":Nsmpls}		
 		spct_file = "%(v2)s_Data_Nsmpls_%(v1)d.txt"%{"v2":wavename, "v1":Nsmpls}
@@ -91,7 +92,7 @@ def general_fft_plot():
 			hv_data = []; marks = []; labs = []; 
 			hv_data.append([frq_data, spct_data[0] / max_val ]); marks.append(Plotting.labs_lins[0]); labs.append('Re{FFT}')
 			hv_data.append([frq_data, spct_data[1] / max_val ]); marks.append(Plotting.labs_lins[1]); labs.append('Im{FFT}')
-			#hv_data.append([frq_data, spct_data[2] / max_val ] ); marks.append(Plotting.labs_lins[2]); labs.append('Abs{FFT}')
+			hv_data.append([frq_data, spct_data[2] / max_val ] ); marks.append(Plotting.labs_lins[2]); labs.append('Abs{FFT}')
 			#hv_data.append([frq_data, spct_data[3]]); marks.append(Plotting.labs_lins[3]); labs.append('Arg{FFT}')
 
 			args = Plotting.plot_arg_multiple()
@@ -101,7 +102,7 @@ def general_fft_plot():
 			args.y_label = 'Signal FFT'
 			args.crv_lab_list = labs
 			args.mrk_list = marks
-			args.plt_range = [-40, 40, -1, 1] if IFT is False else None
+			args.plt_range = [-1, 1, -1, 1] if IFT is False else None
 			args.fig_name = fft_file.replace('.txt','')		
 			Plotting.plot_multiple_curves(hv_data, args)
 			

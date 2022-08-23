@@ -214,28 +214,43 @@ void fft::output_data(std::vector<double> data, double smpl_spac, std::string& f
 
 			// output the positive + negative frequency components of the computed FFT
 
-			std::string fft_file = filename + "_FFT_data" + extension; // filename for FFT data
+			bool NEW_METHOD = true; // uses std::rotate to perform wrap-around conversion
+
+			std::string naming = NEW_METHOD ? "_FFT_data" : "_FFT_data"; 
+
+			std::string fft_file = filename + naming + extension; // filename for FFT data
 
 			std::ofstream write(fft_file, std::ios_base::out, std::ios_base::trunc);
 
 			if (write.is_open()) {
-				
-				if (isign == 1) {
-					// output negative frequency FFT data in the form real, imag, abs-value, phase
-					for (size_t i = N_smpls; i < data.size() - 1; i += 2) {
+
+				if (NEW_METHOD) {
+					vecut::wrap_around_conversion(data); // convert data from wrap-around to standard ordering
+
+					// write the data to the file
+					for (size_t i = 0; i < data.size(); i+=2) {
 						write << std::setprecision(10) << data[i] << " , " << data[i + 1] << " , " << template_funcs::Pythag(data[i], data[i + 1]) << " , " << atan2(data[i + 1], data[i]) << "\n";
 					}
-				}
 
-				// output positive frequency FFT data in the form real, imag, abs-value, phase
-				for (size_t i = 0; i < (size_t)(N_smpls); i += 2) {
-					write << std::setprecision(10) << data[i] << " , " << data[i + 1] << " , " << template_funcs::Pythag(data[i], data[i + 1]) << " , " << atan2(data[i + 1], data[i]) << "\n";
 				}
+				else {
+					if (isign == 1) {
+						// output negative frequency FFT data in the form real, imag, abs-value, phase
+						for (size_t i = N_smpls; i < data.size() - 1; i += 2) {
+							write << std::setprecision(10) << data[i] << " , " << data[i + 1] << " , " << template_funcs::Pythag(data[i], data[i + 1]) << " , " << atan2(data[i + 1], data[i]) << "\n";
+						}
+					}
 
-				if (isign == -1) {
-					// output the "negative" frequency components for the inverse FT
-					for (size_t i = N_smpls; i < data.size() - 1; i += 2) {
+					// output positive frequency FFT data in the form real, imag, abs-value, phase
+					for (size_t i = 0; i < (size_t)(N_smpls); i += 2) {
 						write << std::setprecision(10) << data[i] << " , " << data[i + 1] << " , " << template_funcs::Pythag(data[i], data[i + 1]) << " , " << atan2(data[i + 1], data[i]) << "\n";
+					}
+
+					if (isign == -1) {
+						// output the "negative" frequency components for the inverse FT
+						for (size_t i = N_smpls; i < data.size() - 1; i += 2) {
+							write << std::setprecision(10) << data[i] << " , " << data[i + 1] << " , " << template_funcs::Pythag(data[i], data[i + 1]) << " , " << atan2(data[i + 1], data[i]) << "\n";
+						}
 					}
 				}
 
