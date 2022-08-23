@@ -24,6 +24,8 @@ namespace testing {
 
 	void two_ft_test(); 
 
+	void convolution_test(); 
+
 	void sine_wave(int Nsmpls, double Lt, double f1, double f2);
 
 	void cosine_wave(int Nsmpls, double Lt, double f1, double f2); 

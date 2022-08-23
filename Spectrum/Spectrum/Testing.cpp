@@ -504,6 +504,59 @@ void testing::two_ft_test()
 	}
 }
 
+void testing::convolution_test()
+{
+	// test the convolution calculation function
+	// R. Sheehan 23 - 8 - 2022
+
+	std::string the_dir = "c:\\users\\robertsheehan\\Research\\Notes\\FFT\\Convolutions";
+	useful_funcs::set_directory(the_dir);
+
+	// sine wave example
+	int Nsmpls = 4096;
+
+	double Lt = 10, x0 = 5, w = 1; 
+
+	tophat_alt(Nsmpls, Lt, x0, w); 
+
+	std::vector<double> timedata; int ntimes = 0;
+	std::vector<double> spctdata; int nspct = 0;
+
+	std::string func_str = "Tophat_Alt";
+	std::string timefile = func_str + "_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
+	std::string spctfile = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave data
+
+	vecut::read_into_vector(timefile, timedata, ntimes);
+
+	vecut::read_into_vector(spctfile, spctdata, nspct);
+
+	double delta_t = timedata[1] - timedata[0];
+
+	unsigned long nn = nspct;
+
+	int isign = +1;
+
+	std::vector<double> ans(nn, 0.0); 
+	std::vector<double> respns(spctdata); 
+
+	convol_deconvol calc; 
+
+	calc._convlv(spctdata, nn, respns, nn, isign, ans);
+
+	std::string conv_file = func_str + "_Convolution_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for Convolution data
+
+	std::ofstream write(conv_file, std::ios_base::out, std::ios_base::trunc);
+
+	if (write.is_open()) {
+
+		for (size_t i = 0; i < ans.size(); i ++) {
+			write << std::setprecision(10) << ans[i] << "\n";
+		}
+
+		write.close(); 
+	}
+}
+
 void testing::sine_wave(int Nsmpls, double Lt, double f1, double f2)
 {
 	// compute the trace of a multi-frequency sine-wave over fixed time and no. samples
@@ -757,7 +810,7 @@ void testing::tophat(int Nsmpls, double Lt, double centre, double width)
 void testing::tophat_alt(int Nsmpls, double Lt, double centre, double width)
 {
 	// compute the trace of a top-hat function over fixed time and no. samples
-	// TH(x) = 1 for |x-c| < width, -1 ow
+	// TH(x) = 1 for |x-c| < width, 0 ow
 	// R. Sheehan 4 - 7 - 2022
 
 	try {
@@ -768,9 +821,9 @@ void testing::tophat_alt(int Nsmpls, double Lt, double centre, double width)
 		bool c10 = c1 && c2 && c3;
 
 		if (c10) {
-			std::string time_file = "Tophat_Alt_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for exponential-wave data
+			std::string time_file = "Tophat_Alt_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for tophat-wave data
 
-			std::string data_file = "Tophat_Alt_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for exponential-wave data
+			std::string data_file = "Tophat_Alt_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for tophat-wave data
 
 			std::ofstream write1(time_file, std::ios_base::out, std::ios_base::trunc);
 

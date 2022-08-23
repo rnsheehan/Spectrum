@@ -117,22 +117,26 @@ def general_fft_plot():
 
 def Single_plot():
 	
-	os.chdir('c:/Users/robertsheehan/Research/Notes/FFT/Examples/')
+	os.chdir('c:/Users/robertsheehan/Research/Notes/FFT/Convolutions/')
 
 	#spct_file = "TwoFFT_WAO.txt"
 	#spct_file = "TwoFFT_Unwrapped_Neg.txt"
-	spct_file = "TwoFFT_Separated.txt"
+	#spct_file = "TwoFFT_Separated.txt"
 	#spct_file = "TwoFFT_Equality.txt"
+	time_file = "Tophat_Alt_Time_Nsmpls_4096.txt"
+	conv_file = "Tophat_Alt_Convolution_Nsmpls_4096.txt"
+	spct_file = "Tophat_Alt_Data_Nsmpls_4096.txt"
 
 
 	# plot the FFT in wrap-around format
-	spct_data = np.loadtxt(spct_file, delimiter = ',', unpack = True)
+	time_data = np.loadtxt(time_file, delimiter = ',', unpack = True)
+	spct_data = np.loadtxt(conv_file, delimiter = ',', unpack = True)
 	#time_data = np.arange(0, len(spct_data[0]), 1)
-	time_data = []
-	df = 0.1; f0=0.1; 
-	for i in range(0, len(spct_data[0]), 1):
-		time_data.append(f0)
-		f0 = f0 + 0.5*df
+	#time_data = []
+	#df = 0.1; f0=0.1; 
+	#for i in range(0, len(spct_data[0]), 1):
+	#	time_data.append(f0)
+	#	f0 = f0 + 0.5*df
 
 	args = Plotting.plot_arg_single()
 	args.loud = True
@@ -141,12 +145,11 @@ def Single_plot():
 	args.marker = 'r-'
 	args.fig_name = 'F'
 	
-	Plotting.plot_single_curve(time_data, spct_data[0], args)
+	Plotting.plot_single_curve(time_data, spct_data, args)
 
-	args.marker = 'g-'
-	args.fig_name = 'G'
-	
-	Plotting.plot_single_curve(time_data, spct_data[1], args)
+	#args.marker = 'g-'
+	#args.fig_name = 'G'	
+	#Plotting.plot_single_curve(time_data, spct_data[1], args)
 
 	#args.marker = 'c-'
 	#args.fig_name = 'Fn+FN-n'	
@@ -260,8 +263,8 @@ def laser_fft_plot():
 		print(e)
 
 # method calls
-general_fft_plot()
+#general_fft_plot()
 
-#Single_plot()
+Single_plot()
 
 #laser_fft_plot()

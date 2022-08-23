@@ -518,6 +518,7 @@ void fft::pad_data(std::vector<double> &data, unsigned long &nn, bool CMPLX_ARR)
 					// data is an array of real numbers and must have length nn
 
 					// what's the point of this option? is this to be used on the case of realft? R. Sheehan 5 - 7 - 2022
+					// Yes only use this case when using realft, realft does not require transformation to complex format
 
 					tmp_data.resize(nn, 0.0);
 					

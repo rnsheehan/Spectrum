@@ -12,18 +12,16 @@ void convol_deconvol::_convlv(std::vector<double>& data, unsigned long n, std::v
 {
 	// Calls convlv with exception handling
 
-	// Convolves or deconvolves a real data set data[1..n] (including any user supplied padding)
-	// with a response function respns[1..n]. 
+	// Convolves or deconvolves a real data set data[0..n-1] (including any user supplied padding)
+	// with a response function respns[0..m-1]. 
 
 	// The response function must be converted wrap-around order. This is done here before respns is passed to convlv
 	// Wrap-around order means that the first half of the array contains the impulse reponse function at negative times, counting down 
-	// from the highest element respns[m]. 
+	// from the highest element respns[m-1]. 
 
 	// On input isign is +1 for convolution, -1 for deconvolution. 
 
-	// The answer is returned in the first n components of ans. 
-	// However, ans must be supplied in the calling program with dimensions ans[1..2*n], 
-	// for consistency with twofft	
+	// The answer is returned in the first n components of ans[0..n-1]. 
 	// n MUST be an integer power of 2.
 
 	// "Whomsoever diggeth a pit, shall fall in it1
@@ -35,37 +33,40 @@ void convol_deconvol::_convlv(std::vector<double>& data, unsigned long n, std::v
 	try {
 
 		if (!useful_funcs::is_POT(n)) {
-
+			bool CMPLX_ARR = false;
 			unsigned long n_orig = n; // store the original length in case you need to resize each array
 			unsigned long n2 = 2 * n; // store the value of the size of the array ans[0..2n-1]
 
-			pad_data(data, n, false); // data[0..n-1]
+			pad_data(data, n, CMPLX_ARR); // data[0..n-1]
 
 			n = n_orig; // re-set the value of n in case it was altered by the last call to pad_data
 
-			pad_data(respns, n, false); // respns[0..n-1], the value stored in n may be altered after this call
+			//pad_data(respns, n, CMPLX_ARR); // respns[0..n-1], the value stored in n may be altered after this call
 
-			pad_data(ans, n2, false); // ans[0..2n-1]
+			pad_data(ans, n, CMPLX_ARR); // ans[0..n-1], call to pad_data will change n to next POT
 		}
 
 		// Convert respns to wrap-around order here
 		// Take M/2 values to the left for t < 0 and M/2 values to the right of mid_indx and store them in wrap around format
-		int count = 0;
-		int mid_indx = n / 2;
-		int m2 = m / 2;
-		for (int i = (m + 3) / 2; i <= m; i++) {
-			respns[i] = respns[mid_indx - m2 + count];
-			count++;
-		}
+		//int count = 0;
+		//int mid_indx = n / 2;
+		//int m2 = m / 2;
+		//for (int i = (m + 3) / 2; i <= m; i++) {
+		//	respns[i] = respns[mid_indx - m2 + count];
+		//	count++;
+		//}
 
-		for (int i = 1; i < (m + 3) / 2; i++) {
-			respns[i] = respns[mid_indx + i + 1]; // take data for t > 0
-		}
+		//for (int i = 1; i < (m + 3) / 2; i++) {
+		//	respns[i] = respns[mid_indx + i + 1]; // take data for t > 0
+		//}
+
+		// Convert respns to wrap-around order here
+		vecut::wrap_around_conversion(respns); 
 
 		// check the length of each array
 		bool c1 = fabs(data.size() - static_cast<int>(n)) == 0;
-		bool c2 = fabs(respns.size() - static_cast<int>(n)) == 0;
-		bool c3 = fabs(ans.size() - static_cast<int>(2 * n)) == 0;
+		bool c2 = fabs(respns.size() - static_cast<int>(m)) == 0;
+		bool c3 = fabs(ans.size() - static_cast<int>(n)) == 0;
 		bool c4 = useful_funcs::is_POT(n); 
 		bool c5 = fabs(isign) == 1; 
 		bool c6 = m <= n; 
@@ -74,29 +75,24 @@ void convol_deconvol::_convlv(std::vector<double>& data, unsigned long n, std::v
 		if (c10) {
 
 			convlv(data, n, respns, m, isign, ans);
-
-			double scal = 2.0 / (static_cast<double>(n)); // ???
-
 		}
 		else {
 			std::string reason;
-			reason = "Error: void convol_deconvol::_convlv(std::vector<double> data, unsigned long n, std::vector<double> respns, unsigned long m, int isign, std::vector<double> ans)\n";
-			reason += "Input arrays do not have the correct dimensions\n";
-			reason += "m = " + template_funcs::toString(m) + "\n";
-			reason += "n = " + template_funcs::toString(n) + "\n";
-			reason += "2*n = " + template_funcs::toString(2 * n) + "\n";
-			if (c4) {
-				reason += "n is a power of 2\n";
+			reason = "Error: void convol_deconvol::_convlv(std::vector<double>& data, unsigned long n, std::vector<double>& respns, unsigned long m, int isign, std::vector<double>& ans)\n";
+			if (!c1 || !c2 || !c3) {
+				reason += "Input arrays do not have the correct dimensions\n";
+				reason += "m = " + template_funcs::toString(m) + "\n";
+				reason += "n = " + template_funcs::toString(n) + "\n";
+				reason += "data.size() = " + template_funcs::toString(data.size()) + "\n";
+				reason += "respns.size() = " + template_funcs::toString(respns.size()) + "\n";
+				reason += "ans.size() = " + template_funcs::toString(ans.size()) + "\n";
+
 			}
-			else {
-				reason = reason + "n is not a power of 2\n";
+			if (!c4) {
+				reason += "n is not a power of 2\n";
 			}
-			reason = reason + "data.size() = " + template_funcs::toString(data.size()) + "\n";
-			reason = reason + "respns.size() = " + template_funcs::toString(respns.size()) + "\n";
-			reason = reason + "ans.size() = " + template_funcs::toString(ans.size()) + "\n";
 			throw std::invalid_argument(reason);
 		}
-
 	}
 	catch (std::invalid_argument& e) {
 		useful_funcs::exit_failure_output(e.what());
@@ -107,8 +103,8 @@ void convol_deconvol::_convlv(std::vector<double>& data, unsigned long n, std::v
 
 void convol_deconvol::convlv(std::vector<double>& data, unsigned long n, std::vector<double>& respns, unsigned long m, int isign, std::vector<double>& ans)
 {
-	// Convolves or deconvolves a real data set data[1..n] (including any user supplied padding)
-	// with a response function respns[1..n]. 
+	// Convolves or deconvolves a real data set data[0..n-1] (including any user supplied padding)
+	// with a response function respns[0..m-1]. 
 
 	// The response function must be stored in wrap-around order in the first m elements of respns, where m is an odd integer <=n.
 	// Wrap-around order means that the first half of the array contains the impulse reponse
@@ -145,10 +141,10 @@ void convol_deconvol::convlv(std::vector<double>& data, unsigned long n, std::ve
 			temp[n - i] = respns[m - i];
 		}
 
-		// pad with zeros
-		for (i = (m + 1) / 2; i < n - (m - 1) / 2; i++) {
+		// pad with zeros, don't need this since you've tmp is already filled
+		/*for (i = (m + 1) / 2; i < n - (m - 1) / 2; i++) {
 			temp[i] = 0.0;
-		}
+		}*/
 
 		for (i = 0; i < n; i++) {
 			ans[i] = data[i];
