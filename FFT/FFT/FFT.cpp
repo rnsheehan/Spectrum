@@ -60,20 +60,22 @@ void Spectrum_FFT(unsigned long& N_spctr_data, double spctr_hor_spacing, double 
 	// spctr_hor_spacing is the spacing between the measured spectral data points on the horizontal axis
 	// spctr_data is the measured spectral data set
 	// N_fft_data will contain the number of computed FFT data points
-	// fft_data will contain the positive frequency components of the computed FFT, phase information is not retained here
+	// fft_data will contain all frequency components of the computed FFT
 	// fft_abcissae will contain the horizontal positions for the fft_data in the transformed space
 	// R. Sheehan 19 - 11 - 2021
 
 	// Create std::vector for computing the fits
 	std::vector<double> y(N_spctr_data, 0.0);
 
-	// store the data in the vector containers
+	// store the data in the vector containers instead of standard arrays
+	// use vectors since that is what the FFT code uses
 	double scale_fac = 1.0e+6;
 	for (int i = 0; i < static_cast<int>(N_spctr_data); i++) {
 		y[i] = scale_fac * convert_dBm_to_mW(spctr_data[i]); // convert from dBm scale to mW scale
 	}
 
 	// create variables for storing the computed results
+	// use vectors since that is what the FFT code uses
 	N_fft_data = 0;
 	std::vector<double> fft_cont;
 	std::vector<double> fft_x;
@@ -82,11 +84,19 @@ void Spectrum_FFT(unsigned long& N_spctr_data, double spctr_hor_spacing, double 
 	compute_FFT(N_spctr_data, spctr_hor_spacing, y, N_fft_data, fft_cont, fft_x);
 
 	// store the data in containers for output
+	// use arrays since that is what LabVIEW uses
+	// size of fft_data and fft_abcissae must be known a-priori
+	// N_fft_data = 2 * NextPOT(N_spctr_data)
+
+	// Arrays must have the correct size at calling time inside LabVIEW
 	/*fft_data = new double[N_fft_data]; 
 	fft_abcissae = new double[N_fft_data];*/
 
-	for (int i = 0; i < N_fft_data; i++) {
-		fft_data[i] = fft_cont[i]; 
+	for (int i = 0; i < N_fft_data; i++) {		
 		fft_abcissae[i] = fft_x[i];
+	}
+
+	for (int i = 0; i < 2*N_fft_data; i++) {
+		fft_data[i] = fft_cont[i]; 
 	}
 }

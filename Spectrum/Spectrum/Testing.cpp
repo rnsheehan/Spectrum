@@ -290,19 +290,12 @@ void testing::example_calculations()
 		//func_str = "Unequal_Ampl_Sine_Wave";
 		//timefile = func_str + "_Time_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave time data
 		//spctfile = func_str + "_Data_Nsmpls_" + template_funcs::toString(Nsmpls) + dottxt; // filename for sine-wave voltage data
-
 		//vecut::read_into_vector(timefile, timedata, ntimes);
-
 		//vecut::read_into_vector(spctfile, spctdata, nspct);
-
 		//delta_t = timedata[1] - timedata[0];
-
 		//nn = nspct;
-
 		//calc._realft(spctdata, nn, true); 
-
 		//calc.output_pos_data(spctdata, delta_t, spctfile, dottxt); 
-
 		//spctdata.clear(); timedata.clear();
 	}
 	catch (std::invalid_argument& e) {

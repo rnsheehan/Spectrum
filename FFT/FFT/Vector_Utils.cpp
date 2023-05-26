@@ -81,6 +81,49 @@ void vecut::write_into_file(std::string &filename, std::vector<double> &data, bo
 	}
 }
 
+void vecut::wrap_around_conversion(std::vector<double>& data, bool ToStandard)
+{
+	// exchange the ranges data[_First, _Mid) and data[_Mid, _Last) in place
+	// data is a vector of non-zero length
+	// ToStandard == True implies data is in Wrap-Around order and you want to convert to Standard Ordering
+	// ToStandard == False implies data is in Standard order and you want to convert to Wrap-Around Ordering
+	// 
+	// convert the elements in the vector data from wrap-around order to standard order
+	// take elements from positions [size()/2, size()-1] and move them to positions [0, -1 + size()/2]
+	// take elements from positions [0, -1 + size()/2] and move them to positions [size()/2, size()-1]
+	// 
+	// it would be nice if you could do this in place and it turns out that you can
+	// While looking for a generic function to convert the output of the FFT algorithm from wrap-around to standard ordering
+	// I encountered the std::rotate method see https://cplusplus.com/reference/algorithm/rotate/ for details
+	// rotate the order of the elements in the range [first,last), in such a way that the element pointed by middle becomes the new first element
+	// in other words exchange the ranges [_First, _Mid) and [_Mid, _Last)
+	// 
+	// Odd-ness or Even-ness of data.size() must be accounted for
+	// 
+	// R. Sheehan 22 - 8 - 2022
+
+	try {
+		if (!data.empty()) {
+
+			size_t length = data.size();
+			size_t half_length = length / 2;
+			size_t mid_point = ToStandard ? (length % 2 == 0 ? half_length : half_length + 1) : half_length;
+
+			std::rotate(data.begin(), data.begin() + mid_point, data.end()); // will convert between wrap-around and standard order in place
+		}
+		else {
+			std::string reason;
+			reason = "Error: void vecut::wrap_around_conversion(std::vector<double>& data)\n";
+			reason += "data is empty\n";
+			throw std::invalid_argument(reason);
+		}
+	}
+	catch (std::invalid_argument& e) {
+		useful_funcs::exit_failure_output(e.what());
+		exit(EXIT_FAILURE);
+	}
+}
+
 void vecut::read_into_matrix(std::string& filename, std::vector<std::vector<double>>& data, int& n_rows, int& n_cols, bool loud)
 {
 	// read an array of data from a file

@@ -33,7 +33,9 @@ void fft::_four1(std::vector<double> &data, unsigned long &nn, int isign, bool F
 
 			if (FORMAT_DATA) format_four1(data);
 
-			pad_data(data, nn, true); // data input into four1 must be in cmplx format
+			bool CMPLX_ARR = true;
+
+			pad_data(data, nn, CMPLX_ARR); // data input into four1 must be in cmplx format
 
 			if (useful_funcs::is_POT(nn) && abs(isign) == 1) {
 
@@ -43,12 +45,7 @@ void fft::_four1(std::vector<double> &data, unsigned long &nn, int isign, bool F
 				four1(data, nn, isign);
 
 				// scale by 1/N in the case of an inverse FT
-				// Not yet clear what effect this has on other algorithms
-				/*if(isign == IFT){
-				for(int i=1; i<=data.n_elems(); i++){
-				data[i] /= nn;
-				}
-				}*/
+				if (isign == -1) for (size_t i = 0; i < data.size(); i++) data[i] /= nn;
 			}
 			else {
 				std::string reason;
@@ -167,8 +164,13 @@ void fft::compute_transform(unsigned long& N_spctr_data, double& spctr_hor_spaci
 	// spctr_data is the measured spectral data set
 	// Store the computed transform spectrum in {fft_abcissae, fft_data}
 	// N_fft_data will contain the number of computed FFT data points
+
+	// Deprecated
 	// fft_data will contain the positive frequency components of the computed FFT, phase information is not retained here
 	// fft_abcissae will contain the horizontal positions for the fft_data in the transformed space
+
+	// Function Updated to include postive and negative frequency components
+	// R. Sheehan 26 - 5 - 2023
 
 	try {
 		bool c1 = N_spctr_data > 0 ? true : false;
@@ -177,24 +179,42 @@ void fft::compute_transform(unsigned long& N_spctr_data, double& spctr_hor_spaci
 		bool c10 = c1 && c2 && c3;
 
 		if (c10) {
-			
+
 			_four1(spctr_data, N_spctr_data); // compute the FFT, data re-formatting performed inside _four1
 
-			N_fft_data = static_cast<int>(spctr_data.size() / 4);	// this may have been re-sized, so use this value instead of the one that was input
-																	// divide by 4 because array is now of length 2*N
-			
-			fft_abcissae.resize(N_fft_data, 0.0); //resize the array to hold the transform space horizontal values
+			vecut::wrap_around_conversion(spctr_data); // convert data from wrap-around to standard ordering
 
-			fft_data.resize(N_fft_data, 0.0); //resize the array to hold the transform space horizontal values
+			// Input spectral data is assumed to be real only
+			N_fft_data = spctr_data.size() / 2; // No. of complex valued data points in the FFT
+
+			fft_abcissae.resize(N_fft_data, 0.0); // resize the array to hold the transform space horizontal values
 
 			create_freq_values(N_fft_data, spctr_hor_spacing, fft_abcissae); // compute the transform space horizontal values
 
-			// Store the absolute value of FFT spectrum in fft_data
-			int count = 0; 
-			for (size_t i = 0; i < spctr_data.size() / 2; i += 2) {
-				fft_data[count] = template_funcs::Pythag(spctr_data[i], spctr_data[i + 1]);
-				count++; 
-			}
+			// fft_data must be in the form (real, imag, real, imag, real, imag, ....)
+			fft_data.resize(spctr_data.size(), 0.0); // resize the array to hold the transformed vertical values
+
+			// Store the computed FFT in fft_data
+			/*for (size_t i = 0; i < N_fft_data; i += 2) {
+				fft_data[i] = spctr_data[i];
+				fft_data[i + 1] = spctr_data[i + 1];
+			}*/
+
+			fft_data = spctr_data; 
+
+			//_four1(spctr_data, N_spctr_data); // compute the FFT, data re-formatting performed inside _four1
+			//N_fft_data = static_cast<int>(spctr_data.size() / 4);	// this may have been re-sized, so use this value instead of the one that was input
+			//														// divide by 4 because array is now of length 2*N
+			//
+			//fft_abcissae.resize(N_fft_data, 0.0); //resize the array to hold the transform space horizontal values
+			//fft_data.resize(N_fft_data, 0.0); //resize the array to hold the transform space horizontal values
+			//create_freq_values(N_fft_data, spctr_hor_spacing, fft_abcissae); // compute the transform space horizontal values
+			//// Store the absolute value of FFT spectrum in fft_data
+			//int count = 0; 
+			//for (size_t i = 0; i < spctr_data.size() / 2; i += 2) {
+			//	fft_data[count] = template_funcs::Pythag(spctr_data[i], spctr_data[i + 1]);
+			//	count++; 
+			//}
 		}
 		else {
 			std::string reason = "Error: void fft::compute_transform()\n";
@@ -255,7 +275,10 @@ void fft::pad_data(std::vector<double> &data, unsigned long &nn, bool CMPLX_ARR)
 
 	try {
 		if (data.size() > 1) {
+
+			// test the array size to see if it is a POT
 			if (!useful_funcs::is_POT(nn)) {
+				// data has length nn which is not a POT this must be adjusted
 
 				// Convert nn to the next highest power of two
 				nn = useful_funcs::next_POT(nn);
@@ -263,9 +286,8 @@ void fft::pad_data(std::vector<double> &data, unsigned long &nn, bool CMPLX_ARR)
 				std::vector<double> tmp_data;
 
 				if (CMPLX_ARR) {
-					// data is an array of complex numbers and must have length 2*nn
+					// data, which has already been converted to CMPLX_ARR, must be stored in an array of size 2nn, nn is a POT
 					tmp_data.resize(2 * nn, 0.0);
-					//tmp_data.zero();
 
 					for (size_t i = 0; i < data.size(); i++) {
 						tmp_data[i] = data[i];
@@ -273,8 +295,11 @@ void fft::pad_data(std::vector<double> &data, unsigned long &nn, bool CMPLX_ARR)
 				}
 				else {
 					// data is an array of real numbers and must have length nn
+
+					// what's the point of this option? is this to be used on the case of realft? R. Sheehan 5 - 7 - 2022
+					// Yes only use this case when using realft, realft does not require transformation to complex format
+
 					tmp_data.resize(nn, 0.0);
-					//tmp_data.zero();
 
 					for (size_t i = 0; i < data.size(); i++) {
 						tmp_data[i] = data[i];
@@ -354,37 +379,103 @@ void fft::four1(std::vector<double> &data, unsigned long nn, int isign)
 	}
 }
 
-void fft::create_freq_values(int &N_fr, double &pos_spac, std::vector<double> &fr_vals, bool loud)
+void fft::create_pos_freq_values(int &N_pos_fr, double &smpl_spac, std::vector<double> &fr_vals, bool loud)
 {
-	// Create the set of frequency values that correspond to a straightforward FFT calculation
+	// Create the set of positive frequency values that correspond to a straightforward FFT calculation
 	// R. Sheehan 8 - 8 - 2019
 
+	// output the positive frequency components of the data set
+	// set up the frequency space for the positive half of the FFT
+
+	// Explanation
+	// Suppose data.size() = 4096 => 2048 complex-valued data points
+	// which gives 1024 positive frequency component and 1024 negative frequency components
+	// N_pos_fr = data.size() / 4 = 1024 positive ( negative )  frequency components
+	// The frequency space spans -(1/(2smpl_spac)) < f < +(1/(2smpl_spac)) or [-f_end, 0) + [0, f_end], f_end = (1/(2 smpl_spac))
+	// Frequency spacing in positive frequency space must be delta_fr = f_end / N_pos_fr = 1/(2 N_pos_fr smpl_spac)
+	// Frequency spacing over whole range will be given by delta_fr = 2 f_end / N_tot = 1/(N_tot smpl_spac) = 1/(2 N_pos_fr smpl_spac) since N_tot = 2 N_pos_fr
+
 	try {
-		if (pos_spac > 0.0 && static_cast<int>(fr_vals.size()) == N_fr) {
-			
-			double delta_fr, fr0 = 0.0, fr_final = 1.0 / (2.0*pos_spac);
+		if (smpl_spac > 0.0 && static_cast<int>(fr_vals.size()) == N_pos_fr) {
 
-			delta_fr = (fr_final - fr0) / (static_cast<double>(N_fr - 1));
+			// I don't think this is correct
+			//double delta_fr, fr0 = 0.0, fr_final = 1.0 / (2.0*smpl_spac);
+			//delta_fr = (fr_final - fr0) / (static_cast<double>(N_fr - 1));
 
-			if(loud){
-				std::cout << "\nFrequency Space\n";
-				std::cout << "N = " << N_fr << ", delta-T = " << pos_spac << ", 1/2T = " << fr_final << "\n";
+			// this is the definition supplied in NRinC
+			double fr0 = 0.0, delta_fr = 1.0 / (2.0 * N_pos_fr * smpl_spac), fr_final = 1.0 / (2.0 * smpl_spac);
+			//delta_fr = (fr_final - fr0) / (static_cast<double>(N_pos_fr));
+
+			if (loud) {
+				std::cout << "\nPositive Frequency Space\n";
+				std::cout << "No. positive freq. cpts N_{pos} = " << N_pos_fr << ", delta-T = " << smpl_spac << ", 1/2T = " << fr_final << "\n";
 				std::cout << "f0 = " << fr0 << " , ff = " << fr_final << " , df = " << delta_fr << "\n\n";
-			}			
+			}
 
-			for (int i = 0; i < N_fr; i++) {
+			for (int i = 0; i < N_pos_fr; i++) {
 				fr_vals[i] = fr0;
 				fr0 += delta_fr;
 			}
 		}
 		else {
 			std::string reason;
-			reason = "Error: void fft::create_freq_values(int &N_fr, double &pos_spac, std::vector<double> &fr_vals, bool loud)\n";
-			reason += "pos_spac or vector input size not valid\n";
+			reason = "Error: void fft::create_pos_freq_values(int &N_fr, double &smpl_spac, std::vector<double> &fr_vals, bool loud)\n";
+			reason += "smpl_spac or vector input size not valid\n";
 			throw std::invalid_argument(reason);
 		}
 	}
-	catch (std::invalid_argument &e) {
+	catch (std::invalid_argument& e) {
+		useful_funcs::exit_failure_output(e.what());
+		exit(EXIT_FAILURE);
+	}
+}
+
+void fft::create_freq_values(int& N_smpls, double& smpl_spac, std::vector<double>& fr_vals, int isign, bool loud)
+{
+	// create the full list of positive and negative frequency values in the case of FFT
+	// create the full list of time values in the case of IFT
+	// R. Sheehan 4 - 7 - 2022
+
+	try {
+
+		if (smpl_spac > 0.0 && static_cast<int>(fr_vals.size()) == N_smpls && abs(isign) == 1) {
+			// Compute the sample spacing in frequency space
+			// delta_f = 1 / (N_smpls * delta), delta = sample spacing in time space
+			double delta_fr = 1.0 / (N_smpls * smpl_spac), fr_final = 0.0, fr0 = 0.0;
+
+			if (isign == 1) {
+				fr_final = 1.0 / (2.0 * smpl_spac);  fr0 = -fr_final;
+			}
+
+			if (isign == -1) {
+				fr_final = N_smpls * delta_fr;  fr0 = 0.0;
+			}
+
+			if (loud && isign == 1) {
+				std::cout << "\nFrequency Space\n";
+				std::cout << "No. freq. cpts N = " << N_smpls << ", delta-T = " << smpl_spac << ", 1/2T = " << fr_final << "\n";
+				std::cout << "f0 = " << fr0 << " , ff = " << fr_final << " , df = " << delta_fr << "\n\n";
+			}
+
+			if (loud && isign == -1) {
+				std::cout << "\nTime Space\n";
+				std::cout << "No. time cpts N = " << N_smpls << ", delta-f = " << smpl_spac << "\n";
+				std::cout << "t0 = " << fr0 << " , tf = " << fr_final << " , df = " << delta_fr << "\n\n";
+			}
+
+			for (int i = 0; i < N_smpls; i++) {
+				fr_vals[i] = fr0;
+				fr0 += delta_fr;
+			}
+		}
+		else {
+			std::string reason;
+			reason = "Error: void fft::create_freq_values(int &N_smpls, double &smpl_spac, std::vector<double> &fr_vals, bool loud)\n";
+			reason += "smpl_spac or vector input size not valid\n";
+			throw std::invalid_argument(reason);
+		}
+	}
+	catch (std::invalid_argument& e) {
 		useful_funcs::exit_failure_output(e.what());
 		exit(EXIT_FAILURE);
 	}

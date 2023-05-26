@@ -201,6 +201,7 @@ void fft::output_data(std::vector<double> data, double smpl_spac, std::string& f
 			// remove .txt from end of filename
 			useful_funcs::remove_substring(filename, extension);
 
+			// Input spectral data is assumed to be real only
 			int N_smpls = data.size() / 2; // No. of complex valued data points in the FFT
 
 			std::vector<double> fr_vals(N_smpls, 0.0);
@@ -409,8 +410,13 @@ void fft::compute_transform(unsigned long& N_spctr_data, double& spctr_hor_spaci
 	// spctr_data is the measured spectral data set
 	// Store the computed transform spectrum in {fft_abcissae, fft_data}
 	// N_fft_data will contain the number of computed FFT data points
+	
+	// Deprecated
 	// fft_data will contain the positive frequency components of the computed FFT, phase information is not retained here
 	// fft_abcissae will contain the horizontal positions for the fft_data in the transformed space
+
+	// Function Updated to include postive and negative frequency components
+	// R. Sheehan 26 - 5 - 2023
 
 	try {
 		bool c1 = N_spctr_data > 0 ? true : false;
@@ -422,20 +428,22 @@ void fft::compute_transform(unsigned long& N_spctr_data, double& spctr_hor_spaci
 			
 			_four1(spctr_data, N_spctr_data); // compute the FFT, data re-formatting performed inside _four1
 
-			N_fft_data = static_cast<int>(spctr_data.size() / 4);	// this may have been re-sized, so use this value instead of the one that was input
-																	// divide by 4 because array is now of length 2*N
-			
-			fft_abcissae.resize(N_fft_data, 0.0); //resize the array to hold the transform space horizontal values
+			vecut::wrap_around_conversion(spctr_data); // convert data from wrap-around to standard ordering
 
-			fft_data.resize(N_fft_data, 0.0); //resize the array to hold the transform space horizontal values
+			// Input spectral data is assumed to be real only
+			N_fft_data = spctr_data.size() / 2; // No. of complex valued data points in the FFT
+			
+			fft_abcissae.resize(N_fft_data, 0.0); // resize the array to hold the transform space horizontal values			
 
 			create_freq_values(N_fft_data, spctr_hor_spacing, fft_abcissae); // compute the transform space horizontal values
 
-			// Store the absolute value of FFT spectrum in fft_data
-			int count = 0; 
-			for (size_t i = 0; i < spctr_data.size() / 2; i += 2) {
-				fft_data[count] = template_funcs::Pythag(spctr_data[i], spctr_data[i + 1]);
-				count++; 
+			// fft_data must be in the form (real, imag, real, imag, real, imag, ....)
+			fft_data.resize(spctr_data.size(), 0.0); // resize the array to hold the transformed vertical values
+
+			// Store the computed FFT in fft_data
+			for (size_t i = 0; i < N_fft_data; i += 2) {
+				fft_data[i] = spctr_data[i]; 
+				fft_data[i + 1] = spctr_data[i + 1]; 
 			}
 		}
 		else {

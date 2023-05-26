@@ -24,7 +24,9 @@ private:
 
 	void pad_data(std::vector<double> &data, unsigned long &nn, bool CMPLX_ARR);
 
-	void create_freq_values(int &N_fr, double &pos_spac, std::vector<double> &fr_vals, bool loud = false);
+	void create_freq_values(int& N_smpls, double& smpl_spac, std::vector<double>& fr_vals, int isign = 1, bool loud = false);
+
+	void create_pos_freq_values(int& N_pos_fr, double& smpl_spac, std::vector<double> &fr_vals, bool loud = false);
 
 private:
 	unsigned long arr_size;
