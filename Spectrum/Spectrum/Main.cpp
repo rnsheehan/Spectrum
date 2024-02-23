@@ -21,7 +21,7 @@ int main()
 
 	//testing::compute_FFT_test(); 
 
-	testing::example_calculations(); 
+	//testing::example_calculations(); 
 
 	//testing::inverse_FFT_test(); 
 
@@ -30,6 +30,8 @@ int main()
 	//testing::two_ft_test(); 
 
 	//testing::convolution_test(); 
+
+	testing::lineshapes(); 
 
 	std::cout << "Press enter to close\n"; 
 	std::cin.get(); 

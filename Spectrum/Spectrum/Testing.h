@@ -41,6 +41,8 @@ namespace testing {
 	void heaviside(int Nsmpls, double Lt, double centre);
 	
 	void signum(int Nsmpls, double Lt, double centre);
+
+	void lineshapes();
 }
 
 #endif

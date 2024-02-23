@@ -948,3 +948,48 @@ void testing::signum(int Nsmpls, double Lt, double centre)
 		exit(EXIT_FAILURE);
 	}
 }
+
+void testing::lineshapes()
+{
+	// compute the FFT of various measured lineshapes
+	// R. Sheehan 23 - 2 - 2024
+
+	try {
+		std::string the_dir = "C:\\Users\\robertsheehan\\Research\\Laser_Physics\\Linewidth\\Data\\LCR_DSHI_NKT_T_35_D_50\\Beat_Note_Lineshapes\\";
+		useful_funcs::set_directory(the_dir);
+
+		// generate the vector for fbeat vals
+		int loop_length = 10; 
+		int Nbeats = 14; 
+		int delta_f = 80; 
+		int f_val = delta_f; 
+		std::vector<int> fbeat; 
+		for (int i = 0; i < Nbeats; i++) {
+			fbeat.push_back(f_val);
+			f_val += delta_f; 
+		}
+
+		std::string filename = "Lineshape_I_200_D_50_fb_80.txt"; 
+		int n_cols = 0, n_rows = 0;
+		std::vector<std::vector<double>> the_data; 
+
+		vecut::read_into_matrix(filename, the_data, n_rows, n_cols);
+
+		std::cout << "Array Size\n";
+		std::cout << "n_rows: " << n_rows << " , n_cols: " << n_cols << "\n";
+
+		// perform the FFT calculation and output the FFT data
+		fft calc; 
+		std::vector<double> spctr_data(the_data[1]); 
+		double frq_spac = (the_data[0][1] - the_data[0][0]); // frequency spacing in the original data set
+		unsigned long N_spctr_data = n_cols; // no. data points in the original data set
+
+		calc._four1(spctr_data, N_spctr_data);
+
+		calc.output_data(spctr_data, frq_spac, filename, dottxt); 
+	}
+	catch (std::invalid_argument& e) {
+		useful_funcs::exit_failure_output(e.what());
+		exit(EXIT_FAILURE);
+	}
+}
