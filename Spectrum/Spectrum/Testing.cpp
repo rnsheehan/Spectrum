@@ -955,16 +955,18 @@ void testing::lineshapes()
 	// R. Sheehan 23 - 2 - 2024
 
 	try {
-		std::string the_dir = "C:\\Users\\robertsheehan\\Research\\Laser_Physics\\Linewidth\\Data\\LCR_DSHI_NKT_T_35_D_50\\Beat_Note_Lineshapes\\";
+		//std::string the_dir = "C:\\Users\\robertsheehan\\Research\\Laser_Physics\\Linewidth\\Data\\LCR_DSHI_NKT_T_35_D_50\\Beat_Note_Lineshapes\\";
+		std::string the_dir = "C:\\Users\\robertsheehan\\Research\\Laser_Physics\\Linewidth\\Data\\LCR_DSHI_CoBriteTLS_T_25_D_50\\Beat_Note_Lineshapes\\";
 		useful_funcs::set_directory(the_dir);
 
 		// generate the vector for fbeat vals
-		int loop_length = 10, Nbeats = 9, delta_f = 80, f_val = delta_f, n_cols, n_rows;
+		int loop_length = 10, Nbeats = 17, delta_f = 80, f_val = delta_f, n_cols, n_rows;
 		unsigned long N_spctr_data;
 		double frq_spac; 
 		std::string filename; 
 		for (int i = 0; i < Nbeats; i++) {
-			filename = "Lineshape_I_200_D_" + template_funcs::toString(loop_length) + "_fb_" + template_funcs::toString(f_val) + "_fspan_150" + dottxt;
+			filename = "Lineshape_I_200_D_" + template_funcs::toString(loop_length) + "_fb_" + template_funcs::toString(f_val) + dottxt;
+			//filename = "Lineshape_I_200_D_" + template_funcs::toString(loop_length) + "_fb_" + template_funcs::toString(f_val) + "_fspan_150" + dottxt;
 			
 			if (useful_funcs::file_exists(filename)) {
 				std::cout << "Processing file: " << filename << "\n";
