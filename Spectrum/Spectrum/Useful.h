@@ -20,6 +20,8 @@ namespace useful_funcs{
 
 	bool valid_filename_length(const std::string &name); 
 
+	bool file_exists(std::string& name); 
+
 	unsigned long next_POT(double x); // This function converts a number x to the next highest power of two 
 
 	bool is_POT(int x); // Test a number to see if it is a power of two

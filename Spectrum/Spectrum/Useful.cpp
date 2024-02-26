@@ -179,6 +179,16 @@ bool useful_funcs::valid_filename_length(const std::string &name)
 	return static_cast<int>(name.length()) < MAX_PATH_LENGTH ? true : false;
 }
 
+bool useful_funcs::file_exists(std::string &name)
+{
+	// Check if a file exists
+	// https://stackoverflow.com/questions/12774207/fastest-way-to-check-if-a-file-exists-using-standard-c-c11-14-17-c
+	// R. Sheehan 26 - 2 - 2024
+
+	std::ifstream f(name.c_str());
+	return f.good(); 
+}
+
 unsigned long useful_funcs::next_POT(double x)
 {
 	// This function converts a number x to the next highest power of two
