@@ -956,8 +956,12 @@ void testing::lineshapes()
 
 	try {
 		//std::string the_dir = "C:\\Users\\robertsheehan\\Research\\Laser_Physics\\Linewidth\\Data\\LCR_DSHI_NKT_T_35_D_50\\Beat_Note_Lineshapes\\";
+		//std::string theLaser = "NKT";
+		
 		std::string the_dir = "C:\\Users\\robertsheehan\\Research\\Laser_Physics\\Linewidth\\Data\\LCR_DSHI_CoBriteTLS_T_25_D_50\\Beat_Note_Lineshapes\\";
-		useful_funcs::set_directory(the_dir);
+		std::string theLaser = "CoBriteTLS";
+		
+		useful_funcs::set_directory(the_dir);		
 
 		// generate the vector for fbeat vals
 		int loop_length = 10, Nbeats = 17, delta_f = 80, f_val = delta_f, n_cols, n_rows;
@@ -984,7 +988,9 @@ void testing::lineshapes()
 				fft calc;
 
 				std::vector<double> spctr_data(the_data[1]);
-				frq_spac = (the_data[0][1] - the_data[0][0]); // frequency spacing in the original data set
+				// conver the CoBrite TLS freq spacing to units of kHz
+				frq_spac = theLaser == "NKT" ? (the_data[0][1] - the_data[0][0]) : 1000.0*(the_data[0][1] - the_data[0][0]); // frequency spacing in the original data set
+				//frq_spac = (the_data[0][1] - the_data[0][0]); // frequency spacing in the original data set
 				N_spctr_data = n_cols; // no. data points in the original data set
 
 				calc._four1(spctr_data, N_spctr_data);
